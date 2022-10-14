@@ -1,3 +1,11 @@
+_archive/*
+test/_archive/*
+test/networks/*
+**.DS_Store
+
+
+# <><><> From GitHub template:
+
 # History files
 .Rhistory
 .Rapp.history

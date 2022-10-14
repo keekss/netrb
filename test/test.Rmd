@@ -1,0 +1,65 @@
+---
+title: "test"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Set root directory of all chunks to current working directory.
+# !!! NOTE: Change this to your directory if needed.
+knitr::opts_knit$set(root.dir = getwd())
+
+library(igraph)
+# library(logger)
+# library(parallel)
+# library(readr)
+library(rlang)
+library(tictoc)
+library(data.table)
+library(netrb)
+library(Matrix)
+library(pbapply)
+
+# Read example graphs from file.
+graphs <- list(
+  pg = read_graph('networks/power_grid.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  ir = read_graph('networks/internet_routers.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  cr = read_graph('networks/roads_ca.txt',
+                  format   = 'edgelist',
+                  directed = FALSE)
+)
+# Pre-calculate diameters of graphs, via igraph, Gephi, etc,
+# since initializing a station_graph requires this,
+# and it is computationally expensive
+diams <- list(pg = 46,
+              ir = 11,
+              cr = 849)
+```
+
+```{r}
+# TODO delete and try w/ actual package.
+# Import all `.R` files from the `R/` directory.
+r_source_dir  <- paste(dirname(getwd()), 'R', sep = '/')
+r_source_file_paths <- list.files(r_source_dir, full.names = TRUE)
+# Run `source()` on each source file path to import.
+invisible(sapply(r_source_file_paths, source))
+set.seed(0)
+g <- sample_gnm(10, 12)
+
+sim <- simulator(g        = g,#graphs$pg,
+                 .name    = 'rand',
+                 diam     = NA,#diams$pg,
+                 name_is_new = FALSE)
+
+# TODO replace ALL `rs` with `sim`.
+
+# del_state_to_c_del(rs, '5000')
+# func_vs_deletions(sim, mean_distance,  del_max = 3, unconnected = TRUE)
+plot(sim$g_orig)
+attr_ranks(sim, 'degr')
+# igraph::vertex_attr(g, 'degree')
+```
