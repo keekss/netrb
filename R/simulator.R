@@ -32,7 +32,7 @@ simulator <- function(g,
     set.seed(rand_seed)
   }
 
-  all_sims_dir <- sprintf('%s/%s', getwd(), 'rb_simulators')
+  all_sims_dir <- sprintf('%s/%s', getwd(), 'simulators')
   ensure_dir_exists(all_sims_dir)
 
   root_dir <- sprintf('%s/%s', all_sims_dir, .name)
@@ -56,12 +56,14 @@ simulator <- function(g,
 
   # If random vertex order has not been determined,
   # write to file.  Will also be used as a tiebreaker
-  # in `attr_order()`.
+  # in `vao()`.
+
+  ensure_dir_exists(sprintf('%s/vaos', root_dir))
   vao_rand_path <- sprintf('%s/vaos/rand.csv', root_dir)
   if (!(file.exists(vao_rand_path))) {
     if (!is.na(rand_seed)) set.seed(rand_seed)
-    rand_vertex_order <- sample(1:vcount(g))
-    fwrite(rand_vertex_order, vao_rand_path)
+    rand_vertex_order <- as.list(sample(1:vcount(g)))
+    fwrite(rand_vertex_order, file = vao_rand_path)
   }
 
 
@@ -89,6 +91,6 @@ simulator <- function(g,
     diam       = diam,
     unc_dist   = unc_dist,
     rand_seed  = rand_seed,
-    vrb        = vrb,
+    vrb        = vrb
   ))
 }

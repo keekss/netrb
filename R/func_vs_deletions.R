@@ -6,7 +6,7 @@ func_vs_deletions <- function(sim,
                               nchunks = 20,
                               pass_graph  = TRUE,
                               reuse_dists = TRUE) {
-  require_class('simulator', rs, 'rs')
+  require_class('simulator', rs, 'sim')
 
   # TODO docu doesn't matter which order extra parameters are in,
   # as long as parameter name is specified.
@@ -22,6 +22,6 @@ func_vs_deletions <- function(sim,
   g <- rs$g_orig
 
 
-  chunks <- attr_order_chunks(attrs)
+  chunks <- vao_chunks(attrs)
 
 }

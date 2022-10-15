@@ -1,5 +1,5 @@
 ensure_chunks <- function(rs, attr = 'rand') {
-  require_class('simulator', rs, 'rs')
+  require_class('simulator', rs, 'sim')
 
   .chunks_dir <- chunks_dir(rs = rs,
                             attr = attr)

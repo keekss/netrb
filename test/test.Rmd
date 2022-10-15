@@ -50,9 +50,9 @@ invisible(sapply(r_source_file_paths, source))
 set.seed(0)
 g <- sample_gnm(10, 12)
 
-sim <- simulator(g        = g,#graphs$pg,
+sim <- simulator(g        = graphs$ir,
                  .name    = 'test',
-                 diam     = NA,#diams$pg,
+                 diam     = diams$ir,
                  name_is_new = FALSE)
 
 # TODO replace ALL `rs` with `sim`.
@@ -60,7 +60,7 @@ sim <- simulator(g        = g,#graphs$pg,
 # del_state_to_c_del(rs, '5000')
 # func_vs_deletions(sim, mean_distance,  del_max = 3, unconnected = TRUE)
 # plot(sim$g_orig)
-x <- attr_orders(sim, c('rand', 'degr', 'clos'))
-x[1,]
+x <- vaos(sim, c('rand', 'degr', 'clos'))
 # igraph::vertex_attr(g, 'degree')
 ```
+
