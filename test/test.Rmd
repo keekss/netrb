@@ -51,7 +51,7 @@ set.seed(0)
 g <- sample_gnm(10, 12)
 
 sim <- simulator(g        = g,#graphs$pg,
-                 .name    = 'rand',
+                 .name    = 'test',
                  diam     = NA,#diams$pg,
                  name_is_new = FALSE)
 
@@ -59,7 +59,8 @@ sim <- simulator(g        = g,#graphs$pg,
 
 # del_state_to_c_del(rs, '5000')
 # func_vs_deletions(sim, mean_distance,  del_max = 3, unconnected = TRUE)
-plot(sim$g_orig)
-attr_ranks(sim, 'degr')
+# plot(sim$g_orig)
+x <- attr_orders(sim, c('rand', 'degr', 'clos'))
+x[1,]
 # igraph::vertex_attr(g, 'degree')
 ```

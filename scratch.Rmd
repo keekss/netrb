@@ -10,7 +10,8 @@ library(netrb)
 ```
 
 ```{r}
-sample(1:3)
-
+x <- c('a', 'b')
+names(x) <- c('c', 'd')
+as.list(x)
 ```
 

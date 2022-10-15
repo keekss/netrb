@@ -52,8 +52,17 @@ simulator <- function(g,
 
   # g_orig <- duplicate(g)
   # lockBinding("g_orig", globalenv())
-  if (!is.na(rand_seed)) set.seed(rand_seed)
-  tiebreaker <- sample(1:vcount(g))
+
+
+  # If random vertex order has not been determined,
+  # write to file.  Will also be used as a tiebreaker
+  # in `attr_order()`.
+  vao_rand_path <- sprintf('%s/vaos/rand.csv', root_dir)
+  if (!(file.exists(vao_rand_path))) {
+    if (!is.na(rand_seed)) set.seed(rand_seed)
+    rand_vertex_order <- sample(1:vcount(g))
+    fwrite(rand_vertex_order, vao_rand_path)
+  }
 
 
   # Calculate diameter if not specified
@@ -81,6 +90,5 @@ simulator <- function(g,
     unc_dist   = unc_dist,
     rand_seed  = rand_seed,
     vrb        = vrb,
-    tiebreaker = tiebreaker
   ))
 }
