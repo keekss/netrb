@@ -1,3 +1,4 @@
 ticf <- function(s, ...) {
-  tic(logf(s, ...))
+  tic()
+  logf(s, ...)
 }

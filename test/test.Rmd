@@ -43,7 +43,7 @@ diams <- list(pg = 46,
 ```{r}
 # TODO delete and try w/ actual package.
 # Import all `.R` files from the `R/` directory.
-r_source_dir  <- paste(dirname(getwd()), 'R', sep = '/')
+r_source_dir  <- sprintf('%s/R', dirname(getwd()))
 r_source_file_paths <- list.files(r_source_dir, full.names = TRUE)
 # Run `source()` on each source file path to import.
 invisible(sapply(r_source_file_paths, source))
@@ -51,16 +51,17 @@ set.seed(0)
 g <- sample_gnm(10, 12)
 
 sim <- simulator(g        = graphs$ir,
-                 .name    = 'test',
+                 .name    = 'test_sim',
                  diam     = diams$ir,
                  name_is_new = FALSE)
 
 # TODO replace ALL `rs` with `sim`.
-
-# del_state_to_c_del(rs, '5000')
-# func_vs_deletions(sim, mean_distance,  del_max = 3, unconnected = TRUE)
-# plot(sim$g_orig)
-x <- vaos(sim, c('rand', 'degr', 'clos'))
-# igraph::vertex_attr(g, 'degree')
+func_vs_deletions(sim,
+                  integrity,
+                  attrs = c('rand', 'eign'),
+                  del_max = 0.2,
+                  vcount_orig = vcount(graphs$pg),
+                  nchunks = 4)
+# delete_simulator(sim)
 ```
 

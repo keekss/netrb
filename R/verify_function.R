@@ -1,7 +1,7 @@
 verify_function <- function(func_name) {
 
   log_library_choice <- function(.library) {
-    logf('Using `%s::%s()` for `rb_sim()`.',
+    logf('Using `%s::%s()` for `func_vs_deletions()`.',
          .library,
          func_name)
   }

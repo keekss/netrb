@@ -1,6 +1,5 @@
-integrity <- function(rs, attr, state) {
-  g <- g_at_del_state(rs, attr, state)
+integrity <- function(g, vcount_orig) {
 
-  return(vcount(largest_component(g)) / vcount(rs$g_orig))
+  return(vcount(largest_component(g)) / vcount_orig)
 
 }

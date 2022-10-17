@@ -7,10 +7,10 @@
 simulator(
   g,
   .name,
-  c_total = 20,
   diam = NA,
-  unc_dist = NA,
-  rand_seed = 0,
+  unconn_dist = NA,
+  seed_rand = 0,
+  seed_sample = 1,
   vrb = 1,
   name_is_new = FALSE,
   trim_to_largest_component = TRUE
@@ -21,9 +21,9 @@ simulator(
 
 \item{diam}{\code{(integer)}   : diameter of \code{g} if pre-calculated.  Pre-calculation is highly recommended, as \code{rb_graph} objects are instantiated fairly often in this package, and diameter calculation for connected graphs is \code{O(E)}.}
 
-\item{unc_dist}{\code{(integer)}   : if two vertices are unconnected, \code{igraph::distances()} will return \code{INF} by default.  To help with averages (instead of ignoring \code{INF} values or having an \code{INF} average), \code{unc_dist} can be assigned a value to replace \code{INF}. The default value is the graph's \code{diameter + 1}, to remain unchanged even as diameter decreases due to vertex removal in \code{rb_tester} functions.}
+\item{unconn_dist}{\code{(integer)}   : if two vertices are unconnected, \code{igraph::distances()} will return \code{INF} by default.  To help with averages (instead of ignoring \code{INF} values or having an \code{INF} average), \code{unconn_dist} can be assigned a value to replace \code{INF}. The default value is the graph's \code{diameter + 1}, to remain unchanged even as diameter decreases due to vertex removal in \code{rb_tester} functions.}
 
-\item{rand_seed}{\code{(integer)}  : random number generator seed passed to \code{base::set.seed()}.}
+\item{seed_rand}{\code{(integer)}  : random number generator seed passed to \code{base::set.seed()}.}
 
 \item{vrb}{\code{(integer)}  : level of verbosity for printing progress bars, etc.}
 

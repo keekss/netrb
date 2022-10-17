@@ -10,8 +10,14 @@ library(netrb)
 ```
 
 ```{r}
-x <- c(1,2,3)
-as.integer(x)
-class(x)
+r_source_dir  <- sprintf('%s/R', getwd())
+r_source_file_paths <- list.files(r_source_dir, full.names = TRUE)
+# Run `source()` on each source file path to import.
+invisible(sapply(r_source_file_paths, source))
+
+x <- matrix(1:6, nrow = 2, ncol = 3)
+rownames(x) <- c('a', 'b')
+
+x['a',c(2,3)]
 ```
 

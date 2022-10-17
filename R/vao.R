@@ -16,12 +16,14 @@ vao <- function(sim, .attr) {
       'eign' = centr_eigen(g)$vector,
       stop('Invalid attribute: ', .attr)
     )
-    # Find vertex ranks. Settle ties randomly, since vertex ID
-    # may not be related to any meaningful vertex properties,
-    # and there may be many ties (e.g. 25% of vertices
-    # in the power grid graph have degree of 1).
+    # Order vertices by decreasing value of attribute.
+    # There may be many ties (e.g. 25% of vertices
+    # in the power grid graph have degree of 1),
+    # so settle ties randomly, since vertex ID
+    # may not be related to any meaningful vertex properties.
     result <- as.list(
       order(vertex_attr_vals,
+            # Use standardized random vertex order as tiebreaker.
             as.integer(fread(vao_path(sim, 'rand'))),
             decreasing = TRUE)
     )
