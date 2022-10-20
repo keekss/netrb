@@ -100,5 +100,5 @@ func_vs_deletions <- function(sim,
   }
   # print(vid_is_active)
   closepb(pb)
-  return(result)
+  return(t(result))
 }

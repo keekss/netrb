@@ -82,7 +82,7 @@ simulator <- function(g,
     g_orig     = g,#g_orig,
     root_dir   = root_dir,
     .name      = .name,
-    diam       = diam,
+    diam_orig       = diam,
     unconn_dist   = unconn_dist,
     seed_rand  = seed_rand,
     vrb        = vrb

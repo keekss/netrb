@@ -1,20 +1,16 @@
-plot_func_vs_deletions <- function(fvd) {
-  fvd_long <- melt(fvd, id = 'del_frac')
-  # print(result_long)
-  # percentage <- function(num) return (paste(round(100 * num, 2), '%', sep=''))
-  # TODO include warning about potentially different scounts
-  # title_s <- paste('Distances of Closest', scount, 'Stations')
-  # title_v <- paste('Vertices Remaining: ',
-  #                  vcount(self$g), '/', vcount(self$g_orig),
-  #                  '(', percentage(vcount(self$g)/vcount(self$g_orig)),
-  #                  ')', sep = '')
-  # title <- paste(title_s, title_v, sep = '\n')
-  plot(ggplot(fvd_long,
-              aes(x = x,
-                  y = value,
-                  color = variable))
-       + geom_line())
-       # + ggtitle(title)
-       # + theme(plot.title = element_text(hjust = 0.5)))
+plot_func_vs_deletions <- function(fvd, func_name) {
+  df <- cbind(
+    fvd[,1],
+    reshape2::melt(fvd[,2:ncol(fvd)])[-1]
+  )
+  colnames(df) <- c('del_frac', 'attr', 'value')
 
+  result <- ggplot(
+    data = df,
+    aes(x = del_frac,
+        y = value,
+        group = attr,
+        color = attr)
+  ) + geom_line()
+  return(result)
 }
