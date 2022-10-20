@@ -29,7 +29,9 @@ func_vs_deletions <- function(sim,
 
   .vcount <- vcount(sim$g_orig)
 
-  # TODO docu why doing this
+  # Since VAOs use vertex ids from the original graph,
+  # "deleting" them via a boolean array allows for
+  # fewer comparisons, and for vertices to be added back.
   vid_is_active <- matrix(data = TRUE,
                           nrow = length(attrs),
                           ncol = .vcount)
@@ -46,7 +48,7 @@ func_vs_deletions <- function(sim,
   }
 
   del_vao_chunk <- function(chunk) {
-    # print(class(vao_chunk))
+
     for (a in attrs) {
 
       vids_to_delete <- as.integer(chunk[a, ])
@@ -55,6 +57,10 @@ func_vs_deletions <- function(sim,
     }
     return(vid_is_active)
   }
+
+  del_fracs <- seq(from = del_min,
+                   to   = del_max,
+                   by   = (del_max - del_min) / nchunks)
 
   pb <- startpb(min = 0, max = nchunks)
   chunk_idx <- 1
@@ -68,7 +74,7 @@ func_vs_deletions <- function(sim,
     del_vaoi_start <- del_vaoi_end + 1
   }
   update_result <- function() {
-    result['del_frac', chunk_idx] <- (del_vaoi_end - 1)/.vcount
+    result['del_frac', chunk_idx] <- del_fracs[chunk_idx]
     for (a in attrs) {
       g <- induced_subgraph(graph = sim$g_orig,
                             vids  = vid_is_active[a,])

@@ -1,5 +1,6 @@
 vaos <- function(sim, attrs,
                  return_all = FALSE) {
+  attrs <- as.list(attrs)
 
   # Check how many VAOs must be determined.
   attrs_without_vao_stored <- attrs[

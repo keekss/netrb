@@ -10,6 +10,10 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = getwd())
 
 library(igraph)
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(tidyr)
 # library(logger)
 # library(parallel)
 # library(readr)
@@ -48,20 +52,41 @@ r_source_file_paths <- list.files(r_source_dir, full.names = TRUE)
 # Run `source()` on each source file path to import.
 invisible(sapply(r_source_file_paths, source))
 set.seed(0)
-g <- sample_gnm(10, 12)
+g <- sample_pa(1e5)
 
-sim <- simulator(g        = graphs$ir,
+sim <- simulator(g,#        = graphs$pg,
                  .name    = 'test_sim',
-                 diam     = diams$ir,
+                 # diam     = diams$pg,
                  name_is_new = FALSE)
+```
 
+
+```{r}
 # TODO replace ALL `rs` with `sim`.
-func_vs_deletions(sim,
-                  integrity,
-                  attrs = c('rand', 'eign'),
-                  del_max = 0.2,
-                  vcount_orig = vcount(graphs$pg),
-                  nchunks = 4)
-# delete_simulator(sim)
+res <- func_vs_deletions(
+  sim,
+  integrity,
+  attrs = c('rand', 'eign', 'clos'),
+  del_max = 0.2,
+  vcount_orig = vcount(g),
+  nchunks = 4
+)
+res
+```
+
+
+```{r}
+delete_simulator(sim)
+```
+
+
+```{r}
+df <- as.data.frame(t(res))
+p <- ggplot(data = df, aes(x = del_frac, y = rand)) +
+  geom_line()
+for (i in 2:ncol(df)) {
+  p <- p + geom_line(aes(y = df[,i]))
+}
+df
 ```
 

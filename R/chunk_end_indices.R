@@ -7,7 +7,9 @@ chunk_end_indices <- function(arr_len,
   start <- to_idx(size = start, arr_len = arr_len)
   end   <- to_idx(size = end,   arr_len = arr_len)
 
-  result <- (start - 1) + 1:nchunks * (end - start + 1) / nchunks
+  result <- seq(from = start,
+                to   = end,
+                by   = (end - start) / nchunks)
 
-  return(sapply(result, round))
+  return(sapply(result, round)[-1])
 }
