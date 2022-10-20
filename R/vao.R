@@ -21,6 +21,8 @@ vao <- function(sim, .attr) {
     # in the power grid graph have degree of 1),
     # so settle ties randomly, since vertex ID
     # may not be related to any meaningful vertex properties.
+    set.seed(2)
+    # tiebreaker <- sample()
     result <- as.list(
       order(vertex_attr_vals,
             # Use standardized random vertex order as tiebreaker.

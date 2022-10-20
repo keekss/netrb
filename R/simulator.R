@@ -14,16 +14,16 @@ simulator <- function(g,
                       .name,
                       diam        = NA,
                       unconn_dist = NA, # `diam` + 1
-                      seed_rand   = 0,
-                      seed_sample = 1,
+                      seed_rand   = 1,
                       vrb         = 1,
                       name_is_new = FALSE,
                       trim_to_largest_component = TRUE) {
 
   if (is.na(seed_rand)) logf('Not standardizing random seed.  For standardized results, pass a value for `seed_rand`.')
   else {
+    if (seed_rand < 0) stop('Negative random seeds are reserve for distance reuse functions.')
     logf(
-      'Setting random seed to %d.  Default is 0; to leave seed unspecified, pass `seed_rand` of `NA`.',
+      'Setting random seed to %d.  Default is 1; to leave seed unspecified, pass `seed_rand` of `NA`.',
       seed_rand)
     set.seed(seed_rand)
   }

@@ -9,8 +9,7 @@ simulator(
   .name,
   diam = NA,
   unconn_dist = NA,
-  seed_rand = 0,
-  seed_sample = 1,
+  seed_rand = 1,
   vrb = 1,
   name_is_new = FALSE,
   trim_to_largest_component = TRUE

@@ -54,14 +54,67 @@ invisible(sapply(r_source_file_paths, source))
 set.seed(0)
 # g <- sample_pa(1e5)
 
-sim <- simulator(g        = graphs$cr,
-                 .name    = 'test_sim',
-                 diam     = diams$cr,
+sim <- simulator(g        = graphs$ir,
+                 .name    = 'test_ir',
+                 diam     = diams$ir,
                  name_is_new = FALSE)
 ```
+
+```{r}
+tic()
+s0 <- vao(sim, '')
+toc()
+```
+
 ```{r}
 delete_simulator(sim)
 ```
+
+```{r}
+tic()
+set.seed(-1)
+g <- graphs$cr
+s1 <- sample(vcount(g), 2e2)
+# set.seed(-2)
+s2 <- sample(vcount(g), 2e2)
+d <- distances(g, v=s1, to=s2)
+toc()
+# rownames(d) <- s1
+# colnames(d) <- s2
+fwrite(d, "dists.csv")
+
+```
+
+```{r}
+tic()
+x <- centr_betw(graphs$ir)$res
+toc()
+```
+
+```{r}
+
+tic()
+set.seed(1)
+tt <- sample(5e6)
+trow <- as.list(tt)
+tcol <- matrix(tt, ncol = 1)
+fwrite(trow, "row.csv", col.names = FALSE)
+fwrite(tcol, "col.csv", col.names = FALSE)
+toc()
+```
+```{r}
+tic()
+# rr <- as.matrix(fread("col.csv"))
+d2 <- fread("dists.csv")
+toc()
+```
+
+```{r}
+tic()
+rc <- fread("row.csv")
+toc()
+```
+
 
 ```{r}
 # TODO replace ALL `rs` with `sim`.
