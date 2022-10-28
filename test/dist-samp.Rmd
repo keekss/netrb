@@ -1,5 +1,5 @@
 ---
-title: "scratch-2"
+title: "dist-samp"
 output: html_document
 ---
 
@@ -57,47 +57,54 @@ r_source_dir  <- sprintf('%s/R', dirname(getwd()))
 r_source_file_paths <- list.files(r_source_dir, full.names = TRUE)
 ```
 
-```{r}
-# set.seed(1)
-g <- graphs$ir
-n <- vcount(g)
-rrn <- round(sqrt(sqrt(n)))
-# g <- sample_gnm(n,2*n)
-# TODO make applies use random seeds
-foo <- function(na) {
-  d <- igraph::distances(g,
-               v =  sample(1:n,rrn),
-               to = sample(1:n,rrn))
-  d[d == Inf] <- NA
-  d[d == 0] <- NA
-  return(mean(d, na.rm = TRUE))
-}
-foo2 <- function(na) {
-  md1r <- rep(NA, rrn)
-  md1ap <- unlist(pbmclapply(md1r, foo,
-                         mc.cores = as.integer(detectCores()-1)))
-  return(mean(md1ap))
-}
-mdx <- foo2(NA)
-mdx
-```
-
 
 ```{r}
-stop()
-md1res <- rep(NA, sqrt(rrn))
-tic()
-md1 <- base::mean(pbmclapply(md1res, foo2, mc.cores = detectCores()))
-toc()
-# md1 <- sum(d, na.rm = TRUE) / (99*100)
-tic()
-# md2 <- mean_distance(g)
-toc()
-# foo2(NA)
-md1
-# md2
-# (md1 - md2)/md2
+set.seed(1)
+# g <- sample_gnm(2e3, 4e3)
+g <- sample_fitness_pl(4e3, 6e3, 2.5)
+# g <- graphs$pg
+g <- largest_component(g)
+d <- diameter(g)
+
+dist_frac <- function(f1, f2) {
+  vc <- vcount(g)
+  v1 <- sample(1:vc, round(f1*vc))
+  v2 <- sample(1:vc, round(f2*vc))
+  return(distances(g = g,
+                   v = v1,
+                   to = v2,
+                   diameter = d))
+}
+n <- 20
+x1 = seq(0.1, 1, length.out = n)
+x2 = seq(0.1, 1, length.out = n)
+vs <- matrix(NA, nrow=n,ncol=n)
+ts <- matrix(NA, nrow=n,ncol=n)
+for (i in 1:n) {
+  x2_i <- x2[i]
+  # ts[i,] <- unlist(lapply(x1, function(x) (x2_i + x)))
+  vs[i,] <- sapply(x1, function(x) (x2_i*x))
+  ts[i,] <- timed_lapply(x1, dist_frac, f2 = x2_i, return_times_only = TRUE, times_run = 20)
+}
+ts
+vsp <- ggplot(melt(vs), aes(Var1, Var2)) +                           # Create heatmap with ggplot2
+  geom_tile(aes(fill = value)) + 
+  scale_fill_gradient(low = "black", high = "white")
+vsp
+tsp <- ggplot(melt(ts), aes(Var1, Var2)) +                           # Create heatmap with ggplot2
+  geom_tile(aes(fill = value)) + 
+  scale_fill_gradient(low = "black", high = "white")
+tsp
+rs <- vs/ts
+rsp <- ggplot(melt(rs), aes(Var1, Var2)) +                           # Create heatmap with ggplot2
+  geom_tile(aes(fill = value)) + 
+  scale_fill_gradient(low = "black", high = "white")
+rsp
 ```
+```{r}
+
+```
+
 TODO style choices
 
 indices rather than append
@@ -105,6 +112,8 @@ indices rather than append
 * less error-prone
 
 ```{r}
+ggp + 
+
 vec1 <- c(1)
 tic()
 for (i in 2:1e4) vec1 <- c(vec1, i)

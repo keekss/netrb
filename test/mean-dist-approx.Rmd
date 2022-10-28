@@ -50,6 +50,82 @@ diams <- list(pg = 46,
               wa = 10)
 ```
 
+```{r}
+g <- sample_fitness_pl(40, 60, 2.5)
+plot(g)
+```
+
+
+
+```{r}
+set.seed(1)
+g <- sample_gnm(10, 5)
+# g <- graphs$pg
+len <- 5
+samp_vcs <- seq(from = 1, to = vcount(g), length.out = len)
+mean(distances(g, v=sample(1:10, 5), to=sample(1:10, 5)))
+```
+
+
+```{r}
+mean_distance_sample <- function(g, vcount_sample) {
+  return(mean(distances(g,
+    v  = sample(1:vcount(g), vcount_sample),
+    to = sample(1:vcount(g), vcount_sample)
+  )))
+}
+mean_distance_sample(g, 5)
+```
+
+
+```{r}
+mean_distance_for_gnm_size <- function(n) {
+  g <- sample_gnm(n, round(2*n))
+  return(mean_distance(g))
+}
+tic()
+set.seed(1)
+t <- timed_lapply(samp_vcs, 
+                  function(vc) mean_distance_sample(g, vc),
+                  return_times_only = FALSE,
+                  times_run = 1)
+toc()
+# plot(samp_vcs, t)
+t
+```
+```{r}
+y <- pbmclapply(samp_vcs, function(vc) {
+  mean_distance_sample(g = g, vcount_sample = vc)
+})
+plot(samp_vcs, y)
+```
+
+
+```{r}
+mean(c(3,Inf,1000))
+g <- graphs$ir
+n <- vcount(g)
+rrn <- round(sqrt(sqrt(n)))
+# g <- sample_gnm(n,2*n)
+# TODO make applies use random seeds
+foo <- function(na) {
+  d <- igraph::distances(g,
+               v =  sample(1:n,rrn),
+               to = sample(1:n,rrn))
+  d[d == Inf] <- NA
+  d[d == 0] <- NA
+  return(mean(d, na.rm = TRUE))
+}
+foo2 <- function(na) {
+  md1r <- rep(NA, rrn)
+  md1ap <- unlist(pbmclapply(md1r, foo,
+                         mc.cores = as.integer(detectCores()-1)))
+  return(mean(md1ap))
+}
+mdx <- foo2(NA)
+mdx
+```
+
 
 ## Runtime vs. Sampling Fractions
 ```{r}
@@ -60,52 +136,15 @@ hist(harmonic_centrality(g,
      breaks = 100)
 ```
 
-```{r}
-gn <- graphs$pg
 
-dn <- mean_distance(gn)
-toc()
-gr <- sample_gnm(vcount(gn),
-                 ecount(gn))
-tic()
-dr <- mean_distance(gr)
-toc()
-```
 
 ```{r}
-timed_func <- function(func, ...,
-                       times_run = 1L,
-                       return_func_result = FALSE) {
-  mb <- microbenchmark(
-    result <- func(...),
-    times = round(times_run),
-    unit  = 's'
-  )
-  time <- summary(mb)$mean
-  if (return_func_result) {
-    return(c(result, time))
-    # return(list(
-    #   result = result,
-    #   time   = time
-    # ))
-  } else return(time)
-}
-tf <- timed_func(function() sort(sample(1e5)), return_func_result = TRUE)
+xyt <- timed_lapply(samp_vcs, mean_distance_sample, g = g)
+plot_cols_vs_one_col(xyt, 'x')
 ```
 
 
 ```{r}
-g <- sample_pa(1e4)
-len <- 5
-samp_vcs <- seq(from = 1, to = vcount(g), length.out = len)
-mds <- rep(NA, len)
-times <- rep(NA, len)
-i = 1
-# cl <- makeCluster(detectCores(), type = "FORK")
-# clusterExport(cl, list(
-#   "time_func", "microbenchmark", "g"
-# ))
-tic()
 foo <- pbmclapply(
   samp_vcs,
   function(vc) {

@@ -1,0 +1,18 @@
+---
+title: "acc"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(igraph)
+library(ggplot2)
+library(netrb)
+library(pbmcapply)
+library(microbenchmark)
+```
+
+```{r}
+timed_lapply(1:10, sum)
+```
+
