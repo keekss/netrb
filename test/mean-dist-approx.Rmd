@@ -1,0 +1,135 @@
+---
+title: "mean-dist-approx"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Set root directory of all chunks to current working directory.
+# !!! NOTE: Change this to your directory if needed.
+knitr::opts_knit$set(root.dir = getwd())
+
+library(igraph)
+library(microbenchmark)
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(tidyr)
+# library(logger)
+library(parallel)
+# library(readr)
+library(rlang)
+library(tictoc)
+library(data.table)
+library(netrb)
+library(Matrix)
+library(pbapply)
+library(pbmcapply)
+
+# Read example graphs from file.
+# Read example graphs from file.
+graphs <- list(
+  pg = read_graph('networks/power-grid.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  ir = read_graph('networks/internet-routers.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  cr = read_graph('networks/roads-ca.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  wa = read_graph('networks/eurosis-webatlas.graphml',
+                  format   = 'graphml')
+)
+# Pre-calculate diameters of graphs, via igraph, Gephi, etc,
+# since initializing a station_graph requires this,
+# and it is computationally expensive
+diams <- list(pg = 46,
+              ir = 11,
+              cr = 849,
+              wa = 10)
+```
+
+
+## Runtime vs. Sampling Fractions
+```{r}
+g <- graphs$pg
+hist(harmonic_centrality(g), breaks = 100)
+hist(harmonic_centrality(g,
+                         normalized = TRUE),
+     breaks = 100)
+```
+
+```{r}
+gn <- graphs$pg
+
+dn <- mean_distance(gn)
+toc()
+gr <- sample_gnm(vcount(gn),
+                 ecount(gn))
+tic()
+dr <- mean_distance(gr)
+toc()
+```
+
+```{r}
+timed_func <- function(func, ...,
+                       times_run = 1L,
+                       return_func_result = FALSE) {
+  mb <- microbenchmark(
+    result <- func(...),
+    times = round(times_run),
+    unit  = 's'
+  )
+  time <- summary(mb)$mean
+  if (return_func_result) {
+    return(c(result, time))
+    # return(list(
+    #   result = result,
+    #   time   = time
+    # ))
+  } else return(time)
+}
+tf <- timed_func(function() sort(sample(1e5)), return_func_result = TRUE)
+```
+
+
+```{r}
+g <- sample_pa(1e4)
+len <- 5
+samp_vcs <- seq(from = 1, to = vcount(g), length.out = len)
+mds <- rep(NA, len)
+times <- rep(NA, len)
+i = 1
+# cl <- makeCluster(detectCores(), type = "FORK")
+# clusterExport(cl, list(
+#   "time_func", "microbenchmark", "g"
+# ))
+tic()
+foo <- pbmclapply(
+  samp_vcs,
+  function(vc) {
+    res <- timed_func(function() {
+      d <- igraph::distances(
+        graph = g,
+        v = sample(1:vcount(g), vc),
+        to = sample(1:vcount(g), vc)
+      )
+      d[d == Inf] <- NA
+      return(mean(d, na.rm = TRUE))
+    },
+    return_func_result = TRUE
+    )
+    print(res$result)
+    mds[i] <- res$result
+    times[i] <- res$time
+    i <- i + 1
+    return(res)
+  },
+  mc.cores = detectCores()
+)
+toc()
+  # cl = cl
+
+# stopCluster(cl)
+```

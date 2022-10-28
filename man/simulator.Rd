@@ -7,11 +7,12 @@
 simulator(
   g,
   .name,
+  nchunks = 5,
   diam = NA,
   unconn_dist = NA,
   seed_rand = 1,
   vrb = 1,
-  name_is_new = FALSE,
+  from_scratch = FALSE,
   trim_to_largest_component = TRUE
 )
 }

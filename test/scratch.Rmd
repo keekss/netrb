@@ -1,0 +1,222 @@
+---
+title: "scratch"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE)
+# Set root directory of all chunks to current working directory.
+# !!! NOTE: Change this to your directory if needed.
+knitr::opts_knit$set(root.dir = getwd())
+
+library(igraph)
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(tidyr)
+# library(logger)
+# library(parallel)
+# library(readr)
+library(rlang)
+library(tictoc)
+library(data.table)
+library(netrb)
+library(Matrix)
+library(pbapply)
+library(microbenchmark)
+
+# Read example graphs from file.
+graphs <- list(
+  pg = read_graph('networks/power-grid.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  ir = read_graph('networks/internet-routers.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  cr = read_graph('networks/roads-ca.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  wa = read_graph('networks/eurosis-webatlas.graphml',
+                  format   = 'graphml')
+)
+# Pre-calculate diameters of graphs, via igraph, Gephi, etc,
+# since initializing a station_graph requires this,
+# and it is computationally expensive
+diams <- list(pg = 46,
+              ir = 11,
+              cr = 849,
+              wa = 10)
+
+r_source_dir  <- sprintf('%s/R', dirname(getwd()))
+r_source_file_paths <- list.files(r_source_dir, full.names = TRUE)
+```
+
+```{r}
+r_source_dir  <- sprintf('%s/R', dirname(getwd()))
+r_source_file_paths <- list.files(r_source_dir, full.names = TRUE)
+# Run `source()` on each source file path to import.
+invisible(sapply(r_source_file_paths, source))
+
+frac_shared <- function(frac, l1, l2) {
+  if (length(l1) != length(l2)) stop('len')
+  
+  idx <- to_idx(frac, length(l1))
+  
+  return(length(intersect(l1[1:idx], l2[1:idx])) / idx)
+}
+set.seed(1)
+# g <- sample_gnm(20,30)
+# sim <- simulator(g,
+#                  .name = 'approx_gnm_20_30')
+sim <- simulator(graphs$pg,
+                 .name = 'approx_pg',
+                 diam = diams$pg)
+# sim <- simulator(graphs$wa,
+#                  .name = 'approx_wa',
+#                  diam = diams$wa)
+
+tic('approx')
+approx <- centr_clo_top_approx(sim,
+                     0.03,
+                     2,
+                     0.1)
+toc()
+# delete_simulator(sim)
+tic('manual')
+answers <- vao(sim, 'clos')[1:length(approx)]
+
+toc()
+# 'approx'
+# approx
+# 'answers'
+# answers
+# 'vals'
+# centr_clo(sim$g_orig)$res
+frac_shared(0.99, approx, answers)
+```
+
+
+```{r}
+g <- largest_component(graphs$wa)
+hist(page_rank(g)$vector, breaks = 100)
+hist(centr_clo(g)$res, breaks = 100)
+hist(degree(g), breaks = max(degree(g)))
+hist(harmonic_centrality(g, normalized = TRUE), breaks = 100)
+```
+
+
+```{r}
+
+g <- largest_component(graphs$ir)
+vct <- vcount(g)
+vc1 <- vct
+vc2 <- vct
+tic()
+xx <- igraph::distances(g,
+                        v = sort(sample(1:vc1)),
+                        to = sort(sample(1:vc2)))
+toc()
+# tic()
+# xx2 <- igraph::centr_clo(g)
+# toc()
+```
+```{r}
+g <- largest_component(graphs$wa)
+hist(log(page_rank(g)$vector), breaks=max(degree(g)))
+```
+
+```{r}
+g <- largest_component(graphs$ir)
+hc <- harmonic_centrality(g, normalized = TRUE)
+lpr <- log(page_rank(g)$vector)
+```
+
+```{r}
+frac <- 0.005
+n <- round(vcount(g) * frac)
+hcos <- hc[head(order(hc, decreasing = TRUE), n)]
+lpros <- hc[head(order(lpr, decreasing = TRUE), n)]
+plot(rank(-(4*hcos + lpros)), rank(-hcos))
+```
+
+```{r}
+g <- graphs$cr
+# g <- sample_gnm(1e3, 2e3)
+# g <- sample_pa(2e4)
+x1o <- order(page_rank(g)$vector, decreasing = TRUE)
+x2 <- seq(1, vcount(g)/1e4, length.out = 20)
+ys <- pbsapply(x2, function(x) {
+  microbenchmark(
+    igraph::distances(g,
+                      # v =  x1o[1:round(vcount(g)/1e4)],
+                      v  = x1o[1:x],
+                      to = sample(vcount(g), x)),
+    times = 1L
+  )$time
+})
+plot(x2/vcount(g), ys/max(ys), type = 'l')
+```
+```{r}
+x2
+```
+
+
+
+```{r}
+g <- graphs(pg)
+x <- seq(from = 0.001, to = 0.1, by = 0.01)
+y <- sapply(x2, frac_shared, o_y, o_p)
+# plot(x2,y2, type='l')
+```
+
+```{r}
+set.seed(1)
+arr <- sample(1e7)
+res <- microbenchmark(
+  sort(arr),
+  times = 1L,
+  unit = 's'
+)
+res
+
+tic()
+res <- sort(arr)
+toc()
+```
+
+
+```{r}
+
+
+tic()
+g <- graphs$ir
+g <- largest_component(g)
+
+y <- centr_clo(g)$res
+o_y <- order(y, decreasing = TRUE)
+toc()
+
+```
+
+```{r}
+
+
+tic()
+# x_2 <- order(page_rank(g)$vector, decreasing = TRUE)
+x_p <- page_rank(g)$vector
+o_p <- order(x_p, decreasing = TRUE)
+x_pl <- log(x_p)
+# x_1 <- order(degree(g), decreasing = TRUE)
+x_d <- degree(g)
+o_d <- order(x_d, decreasing = TRUE)
+x_dl <- log(x_d)
+x_c <- x_p * x_d
+toc()
+plot(x = x_pl, y = y)
+summary(lm(y ~ x_pl))
+```
+
+
+

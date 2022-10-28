@@ -1,0 +1,117 @@
+---
+title: "scratch-2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tictoc)
+library(igraph)
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE)
+# Set root directory of all chunks to current working directory.
+# !!! NOTE: Change this to your directory if needed.
+knitr::opts_knit$set(root.dir = getwd())
+
+library(igraph)
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(tidyr)
+# library(logger)
+# library(parallel)
+# library(readr)
+library(rlang)
+library(tictoc)
+library(data.table)
+library(netrb)
+library(Matrix)
+library(pbapply)
+library(pbmcapply)
+library(microbenchmark)
+
+# Read example graphs from file.
+graphs <- list(
+  pg = read_graph('networks/power-grid.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  ir = read_graph('networks/internet-routers.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  cr = read_graph('networks/roads-ca.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  wa = read_graph('networks/eurosis-webatlas.graphml',
+                  format   = 'graphml')
+)
+# Pre-calculate diameters of graphs, via igraph, Gephi, etc,
+# since initializing a station_graph requires this,
+# and it is computationally expensive
+diams <- list(pg = 46,
+              ir = 11,
+              cr = 849,
+              wa = 10)
+
+r_source_dir  <- sprintf('%s/R', dirname(getwd()))
+r_source_file_paths <- list.files(r_source_dir, full.names = TRUE)
+```
+
+```{r}
+# set.seed(1)
+g <- graphs$ir
+n <- vcount(g)
+rrn <- round(sqrt(sqrt(n)))
+# g <- sample_gnm(n,2*n)
+# TODO make applies use random seeds
+foo <- function(na) {
+  d <- igraph::distances(g,
+               v =  sample(1:n,rrn),
+               to = sample(1:n,rrn))
+  d[d == Inf] <- NA
+  d[d == 0] <- NA
+  return(mean(d, na.rm = TRUE))
+}
+foo2 <- function(na) {
+  md1r <- rep(NA, rrn)
+  md1ap <- unlist(pbmclapply(md1r, foo,
+                         mc.cores = as.integer(detectCores()-1)))
+  return(mean(md1ap))
+}
+mdx <- foo2(NA)
+mdx
+```
+
+
+```{r}
+stop()
+md1res <- rep(NA, sqrt(rrn))
+tic()
+md1 <- base::mean(pbmclapply(md1res, foo2, mc.cores = detectCores()))
+toc()
+# md1 <- sum(d, na.rm = TRUE) / (99*100)
+tic()
+# md2 <- mean_distance(g)
+toc()
+# foo2(NA)
+md1
+# md2
+# (md1 - md2)/md2
+```
+TODO style choices
+
+indices rather than append
+* runtime
+* less error-prone
+
+```{r}
+vec1 <- c(1)
+tic()
+for (i in 2:1e4) vec1 <- c(vec1, i)
+toc()
+tic()
+vec2 <- rep(NA, 1e4)
+for (i in 1:1e4) vec2[i] <- i
+toc()
+```
+

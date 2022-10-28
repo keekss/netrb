@@ -12,11 +12,12 @@
 #' @examples
 simulator <- function(g,
                       .name,
+                      nchunks     = 5,
                       diam        = NA,
                       unconn_dist = NA, # `diam` + 1
                       seed_rand   = 1,
                       vrb         = 1,
-                      name_is_new = FALSE,
+                      from_scratch = FALSE,
                       trim_to_largest_component = TRUE) {
 
   if (is.na(seed_rand)) logf('Not standardizing random seed.  For standardized results, pass a value for `seed_rand`.')
@@ -32,7 +33,7 @@ simulator <- function(g,
   ensure_dir_exists(all_sims_dir)
 
   root_dir <- sprintf('%s/%s', all_sims_dir, .name)
-  ensure_dir_exists(root_dir, must_be_empty = name_is_new)
+  ensure_dir_exists(root_dir, must_be_empty = from_scratch)
 
   # By default, if `g` has multiple components, trim it to be
   # only the largest component, since stats for distances, etc.
@@ -45,21 +46,22 @@ simulator <- function(g,
     }
   }
 
+  vertex_attr(g, 'vid_orig') <- V(g)
+
   # g_orig <- duplicate(g)
   # lockBinding("g_orig", globalenv())
 
-
-  # If random vertex order has not been determined,
-  # write to file.  Will also be used as a tiebreaker
-  # in `vao()`.
-
-  ensure_dir_exists(sprintf('%s/vaos', root_dir))
-  vao_rand_path <- sprintf('%s/vaos/rand.csv', root_dir)
-  if (!(file.exists(vao_rand_path))) {
-    if (!is.na(seed_rand)) set.seed(seed_rand)
-    rand_vertex_order <- as.list(sample(1:vcount(g)))
-    fwrite(rand_vertex_order, file = vao_rand_path)
-  }
+  # ensure_dir_exists(sprintf('%s/vaos', root_dir))
+  # vao_rand_path <- sprintf('%s/vaos/rand.csv', root_dir)
+  # if (!(file.exists(vao_rand_path))) {
+  #   if (!is.na(seed_rand)) set.seed(seed_rand)
+  #   rand_vertex_order <- as.list(sample(1:vcount(g)))
+  #   fwrite(rand_vertex_order, file = vao_rand_path)
+  # }
+  set.seed(seed_rand)
+  vao_rand   <- sample(1:vcount(g))
+  set.seed(max(2, seed_rand + 1)) # 0 and 1 are the same
+  tiebreaker <- sample(1:vcount(g))
 
 
   # Calculate diameter if not specified
@@ -80,6 +82,8 @@ simulator <- function(g,
     # g          = g,
     # Copy `g` as a backup.
     g_orig     = g,#g_orig,
+    vao_rand   = vao_rand,
+    tiebreaker = tiebreaker,
     root_dir   = root_dir,
     .name      = .name,
     diam_orig       = diam,

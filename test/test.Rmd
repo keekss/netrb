@@ -25,23 +25,27 @@ library(Matrix)
 library(pbapply)
 
 # Read example graphs from file.
+# Read example graphs from file.
 graphs <- list(
-  pg = read_graph('networks/power_grid.txt',
+  pg = read_graph('networks/power-grid.txt',
                   format   = 'edgelist',
                   directed = FALSE),
-  ir = read_graph('networks/internet_routers.txt',
+  ir = read_graph('networks/internet-routers.txt',
                   format   = 'edgelist',
                   directed = FALSE),
-  cr = read_graph('networks/roads_ca.txt',
+  cr = read_graph('networks/roads-ca.txt',
                   format   = 'edgelist',
-                  directed = FALSE)
+                  directed = FALSE),
+  wa = read_graph('networks/eurosis-webatlas.graphml',
+                  format   = 'graphml')
 )
 # Pre-calculate diameters of graphs, via igraph, Gephi, etc,
 # since initializing a station_graph requires this,
 # and it is computationally expensive
 diams <- list(pg = 46,
               ir = 11,
-              cr = 849)
+              cr = 849,
+              wa = 10)
 ```
 
 ```{r}
@@ -53,42 +57,73 @@ r_source_file_paths <- list.files(r_source_dir, full.names = TRUE)
 invisible(sapply(r_source_file_paths, source))
 set.seed(0)
 # g <- sample_pa(1e5)
+sim <- simulator(g        = graphs$wa,
+                 .name    = 'test_wa',
+                 diam     = diams$wa,
+                 from_scratch = FALSE)
 
-sim <- simulator(g        = graphs$ir,
-                 .name    = 'test_ir',
-                 diam     = diams$ir,
-                 name_is_new = FALSE)
+set.seed(1)
+# g <- sample_gnm(100, 200)
+# # plot(g)x
+# sim_gnm <- simulator(g,
+#                      .name = 'test_gnm_100_200')
+vcount(graphs$wa)
+
+
+```
+
+
+```{r}
+# fvd <- func_vs_deletions(sim, 
+#                          integrity,
+#                          vcount_orig = vcount(graphs$wa),
+#                          attrs = c('rand', 'clos'),
+#                          nchunks = 4)
+
+```
+```{r}
+# plot_cols_vs_one_col(fvd)
+
+
 ```
 
 ```{r}
 tic()
-s0 <- vao(sim, '')
-toc()
-```
-
-```{r}
-delete_simulator(sim)
-```
-
-```{r}
-tic()
-set.seed(-1)
-g <- graphs$cr
-s1 <- sample(vcount(g), 2e2)
+set.seed(-10)
+g <- graphs$ir
+s1 <- sample(vcount(g), 100)
 # set.seed(-2)
-s2 <- sample(vcount(g), 2e2)
-d <- distances(g, v=s1, to=s2)
+# s2 <- sample(vcount(g), 10)
+d <- distances(g, v=s1, to=s1)
+rownames(d) <- s1
+colnames(d) <- s1
 toc()
-# rownames(d) <- s1
-# colnames(d) <- s2
-fwrite(d, "dists.csv")
 
 ```
 
 ```{r}
 tic()
-x <- centr_betw(graphs$ir)$res
+set.seed(1)
+g <- graphs$cr
+x1 <- order(centr_eigen(g)$vector, decreasing = TRUE)
+# x2 <- order(page_rank(graphs$cr)$vector, decreasing = TRUE)
+# x3 <- order(degree(g), decreasing = TRUE)
+# x <- page_rank(g,
+#               vids = sample(1:vcount(g), 1e3))
+# y <- centr_eigen(g)
 toc()
+```
+
+```{r}
+max(degree(graphs$cr))#, x2[1:10])
+```
+```{r}
+x1[1:10]
+```
+
+
+```{r}
+degree(graphs$ir, v = x2[1:10])
 ```
 
 ```{r}

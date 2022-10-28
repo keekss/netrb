@@ -1,0 +1,90 @@
+---
+title: "microbenchmark-test"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Set root directory of all chunks to current working directory.
+# !!! NOTE: Change this to your directory if needed.
+knitr::opts_knit$set(root.dir = getwd())
+
+library(igraph)
+library(microbenchmark)
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(tidyr)
+library(parallel)
+library(rlang)
+library(tictoc)
+library(netrb)
+library(pbapply)
+
+# Read example graphs from file.
+# Read example graphs from file.
+graphs <- list(
+  pg = read_graph('networks/power-grid.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  ir = read_graph('networks/internet-routers.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  cr = read_graph('networks/roads-ca.txt',
+                  format   = 'edgelist',
+                  directed = FALSE),
+  wa = read_graph('networks/eurosis-webatlas.graphml',
+                  format   = 'graphml')
+)
+# Pre-calculate diameters of graphs, via igraph, Gephi, etc,
+# since initializing a station_graph requires this,
+# and it is computationally expensive
+diams <- list(pg = 46,
+              ir = 11,
+              cr = 849,
+              wa = 10)
+```
+
+
+```{r}
+cl <- makeCluster(detectCores())
+
+g <- graphs$pg
+time_func_for_g(mean_distance, g, cl)
+stopCluster(cl)
+```
+
+```{r}
+cl <- makeCluster(detectCores())
+st <- system.time(replicate(100, {sort(sample(1e5))}))
+summary(st)$elapsed
+```
+```{r}
+foo <- function(n) { sort(sample(n))}
+arr <- seq(1, 1e5, length.out = 1e4)
+tic()
+s <- sapply(arr, foo)
+toc()
+```
+
+
+```{r}
+cl <- makeCluster(detectCores())
+tic()
+ps <- pbsapply(arr, foo, cl = cl)
+toc()
+stopCluster(cl)
+```
+
+
+
+```{r}
+options('cores')
+```
+```{r}
+detectCores()
+```
+```{r}
+registerDoMC(10)
+```
+

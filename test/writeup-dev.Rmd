@@ -1,0 +1,30 @@
+---
+title: "Network Robustness Analysis and High-Speed Metric Approximations"
+author: "Nicholas \"Kiko\" Whiteley"
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+  html_notebook: 
+    code_folding: hide
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Network robustness primarily concerns the effect of _structural changes_ (typically vertex deletions) on a graph's _metrics_ such as mean distance.  Analyzing this relationship presents a few TODOdesign choices:
+
+#### Deletions
+* __"batch size"__, i.e. number of vertices to delete before re-calculating the metrics in question.
+* __selection method__, i.e. which vertex attribute will determine the order of deletions, e.g. highest degree, random.
+  * Note: 
+
+#### Metrics
+
+Such requires re-calculating the metrics in question after each "batch" of deletions, which can be done with reasonable runtim
+
+After a certain number of vertices are deleted, 

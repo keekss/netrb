@@ -1,0 +1,70 @@
+---
+title: "time-func"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(igraph)
+library(microbenchmark)
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(tidyr)
+# library(logger)
+library(parallel)
+# library(readr)
+library(rlang)
+library(tictoc)
+library(data.table)
+library(netrb)
+library(Matrix)
+library(pbapply)
+library(pbmcapply)
+```
+
+
+```{r}
+
+b <- timed_lapply(1:4, function(n) (mean(sample(n))))
+b
+```
+
+
+```{r}
+foo2 <- function(x) {
+  return(list(
+    aa = x+1,
+    bb = x+2
+  ))
+}
+
+a <- list(
+  x = 1,
+  y = 2
+)
+b <- lapply(a, foo2)
+
+```
+
+
+
+```{r}
+
+foo <- function(n) {
+  sort(sample(1e2))
+}
+
+mb_f <- function(f) {
+  start <- Sys.time()
+  res   <- f()
+  runtime <- Sys.time() - start
+  return(list(
+    res  = res,
+    time = runtime
+  ))
+}
+a <- mb_f(foo)
+
+```
+
