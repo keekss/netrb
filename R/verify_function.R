@@ -20,8 +20,8 @@ verify_function <- function(func_name) {
           return(func)
         },
         error = function(condition_2) {
-          stop(sprintf('Function `%s()` not found in `netrb` or `igraph`.',
-                       func_name))
+          logf('Function `%s()` not found in `netrb` or `igraph`.  Proceeding...',
+               func_name)
         }
       )
     }

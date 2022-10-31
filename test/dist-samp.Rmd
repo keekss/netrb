@@ -60,49 +60,73 @@ r_source_file_paths <- list.files(r_source_dir, full.names = TRUE)
 
 ```{r}
 set.seed(1)
-# g <- sample_gnm(2e3, 4e3)
-g <- sample_fitness_pl(4e3, 6e3, 2.5)
-# g <- graphs$pg
+# g <- sample_gnm(5e2, 1)
+# g <- sample_fitness_pl(1e3, 2e3, 2.5)
+g <- graphs$pg
 g <- largest_component(g)
 d <- diameter(g)
+md <- mean(netrb::distances(g), na.rm = TRUE)
+md
+# md2 <- igraph::mean_distance(g)
+# md2
+```
 
-dist_frac <- function(f1, f2) {
+
+```{r}
+md_err <- function(f1, f2, nr) {
   vc <- vcount(g)
   v1 <- sample(1:vc, round(f1*vc))
   v2 <- sample(1:vc, round(f2*vc))
-  return(distances(g = g,
+  mda <- function(na) mean(
+    netrb::distances(g = g,
                    v = v1,
                    to = v2,
-                   diameter = d))
+                   diameter = d),
+    na.rm = TRUE
+  )
+  # return(sapply(rep(NA, nr), mda))
+  meanmda <- mean(unlist(mclapply(rep(NA, nr), mda, mc.cores = detectCores()-1)))
+  return((abs(meanmda-md))/md)
 }
-n <- 20
-x1 = seq(0.1, 1, length.out = n)
-x2 = seq(0.1, 1, length.out = n)
-vs <- matrix(NA, nrow=n,ncol=n)
-ts <- matrix(NA, nrow=n,ncol=n)
-for (i in 1:n) {
-  x2_i <- x2[i]
-  # ts[i,] <- unlist(lapply(x1, function(x) (x2_i + x)))
-  vs[i,] <- sapply(x1, function(x) (x2_i*x))
-  ts[i,] <- timed_lapply(x1, dist_frac, f2 = x2_i, return_times_only = TRUE, times_run = 20)
-}
-ts
+n <- 30
+nr <- 9
+x1 <- seq(0.1, 1, length.out = n)
+x2 <- seq(0.1, 1, length.out = n)
+vs <- matrix(rep(x1,n), nrow=n,ncol=n)
+ts <- matrix(rep(x1,n), nrow=n,ncol=n)
+es <- matrix(rep(x1,n), nrow=n,ncol=n)
+vs <- pbapply(vs, 1, function(x1_i) (x1_i*x2))
+ts <- pbapply(ts, 1, function(x1_i) {
+  timed_lapply(x2, md_err, f2 = x1_i, nr = nr, return_times_only = TRUE, times_run = 5)
+})
+es <- pbapply(es, 1, function(x1_i) {
+   unlist(mclapply(x2, md_err, f2 = x1_i, nr = nr, mc.cores = detectCores() - 1))
+})
 vsp <- ggplot(melt(vs), aes(Var1, Var2)) +                           # Create heatmap with ggplot2
   geom_tile(aes(fill = value)) + 
-  scale_fill_gradient(low = "black", high = "white")
+  scale_fill_gradient(low = "white", high = "black")
 vsp
 tsp <- ggplot(melt(ts), aes(Var1, Var2)) +                           # Create heatmap with ggplot2
   geom_tile(aes(fill = value)) + 
-  scale_fill_gradient(low = "black", high = "white")
+  scale_fill_gradient(low = "white", high = "black")
 tsp
-rs <- vs/ts
-rsp <- ggplot(melt(rs), aes(Var1, Var2)) +                           # Create heatmap with ggplot2
-  geom_tile(aes(fill = value)) + 
-  scale_fill_gradient(low = "black", high = "white")
-rsp
 ```
-```{r}
 
+
+```{r}
+esp <- ggplot(melt(es), aes(Var1, Var2)) +                           # Create heatmap with ggplot2
+  geom_tile(aes(fill = value)) + 
+  scale_fill_gradient(low = "green", high = "red")
+esp
+```
+
+
+```{r}
+os <- es*ts
+osp <- ggplot(melt(os), aes(Var1, Var2)) +                           # Create heatmap with ggplot2
+  geom_tile(aes(fill = value)) +
+  scale_fill_gradient(low = "green", high = "red")
+osp
 ```
 
 TODO style choices

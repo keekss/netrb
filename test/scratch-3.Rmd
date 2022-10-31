@@ -5,8 +5,6 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
-knitr::opts_chunk$set(echo = TRUE)
 # Set root directory of all chunks to current working directory.
 # !!! NOTE: Change this to your directory if needed.
 knitr::opts_knit$set(root.dir = getwd())
@@ -16,15 +14,13 @@ library(ggplot2)
 library(reshape2)
 library(dplyr)
 library(tidyr)
-# library(logger)
-# library(parallel)
-# library(readr)
 library(rlang)
 library(tictoc)
 library(data.table)
 library(netrb)
 library(Matrix)
 library(pbapply)
+library(pbmcapply)
 library(microbenchmark)
 
 # Read example graphs from file.
@@ -52,6 +48,129 @@ diams <- list(pg = 46,
 r_source_dir  <- sprintf('%s/R', dirname(getwd()))
 r_source_file_paths <- list.files(r_source_dir, full.names = TRUE)
 ```
+
+```{r}
+set.seed(1)
+x <- sample(-1:9)
+x
+normalize(x, min_final = -20, max_final = -10)
+```
+
+
+
+```{r}
+g <- graphs$pg
+# g <- sample_fitness_pl(2e3, 4e3, 2)
+g <- largest_component(g)
+# hist(degree(g), breaks = max(degree(g)))
+
+
+d <- netrb::distances(g)
+# d[d == 0] <- NA
+md <- mean_distance(g)
+mds <- unlist(pbmclapply(
+  1:vcount(g),
+  function(vid) {
+    mean(d[vid,], na.rm = TRUE)
+  },
+  mc.cores = detectCores() - 1
+))
+pr <- page_rank(g)$vector
+pro <- order(pr)
+md
+n <- round(vcount(g)/100)
+ds <- distances(g,
+                )
+```
+```{r}
+hist(mds, breaks=100)
+hist(d, breaks=max(d, na.rm = TRUE))
+hist(log(pr), breaks=100)
+```
+```{r}
+
+```
+
+
+```{r}
+r_pr <- rank(pr)
+r_md <- rank(mds)
+plot(r_pr, r_md)
+summary(lm(r_md ~ r_pr))
+```
+```{r}
+plot(log(pr), mds)
+```
+
+
+```{r}
+lpr <- log(page_rank(g)$vector)
+fit <- density(lpr, bw="SJ", n = vcount(g))
+N <- 1e3
+x <- rnorm(N, sample(lpr, size=N, replace=TRUE), fit$bw)
+
+foo9 <- function() {
+  x <- rnorm(N, sample(lpr, size=N, replace=TRUE), fit$bw)
+  x <- x - min(x)
+  x <- x / max(x)
+  x <- x * (vcount(g)-1) + 1
+  return(pro[x])
+}
+```
+
+```{r}
+hist(x, breaks=100)
+# hist(foo9(), breaks=100)
+```
+
+
+```{r}
+# g <- graphs$cr
+# g <- largest_component(g)
+
+n <- 10
+nr <- 10
+vids <- pro[round(seq(1, vcount(g), length.out = n))]
+
+# vs1 <- vids[c(FALSE, TRUE)]
+# vs2 <- vids[c(TRUE, FALSE)]
+# tic('1')
+
+foo8 <- function(na) {
+  e1 <- mean_distance_approx_error(
+  md, g=g, N=n, lpr=lpr, fit=fit, pro=pro, times_run = nr
+  # vs1=vs1, vs2=vs2, times_run = nr
+
+)
+# toc()
+# tic('2')
+  e2 <- mean_distance_approx_error(
+    md, g=g, vs1=n, vs2=n,
+    times_run = nr
+  )
+  return(e2/e1)
+}
+# mean_distance_approx(
+#   md, g=g, N=n, lpr=lpr, fit=fit, pro=pro, times_run = nr)
+arr <- rep(NA, 100)
+arr2 <- unlist(pblapply(arr, foo8)) # TODO fix
+mean(arr2)
+```
+```{r}
+hist(arr2, breaks=10)
+length(arr2[arr2<0])
+```
+
+
+```{r}
+hist(log(page_rank(g)$vector), breaks=100)
+hist(mds, breaks=100)
+```
+
+```{r}
+hist(lpr, breaks=100)
+```
+
 
 ```{r}
 r_source_dir  <- sprintf('%s/R', dirname(getwd()))

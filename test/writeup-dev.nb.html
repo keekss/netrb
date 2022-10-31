@@ -218,12 +218,34 @@ pre code {
 <!-- rnb-text-begin -->
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>Network robustness primarily concerns the effect of <em>structural changes</em> (typically vertex deletions) on a graph’s <em>metrics</em> such as mean distance. Analyzing this relationship presents a few TODOdesign choices:</p>
+<p>A network’s robustness primarily concerns how <strong>structural modifications</strong> (typically vertex deletions) impact the network’s <strong>metrics</strong>.</p>
+<p>The <code>netrb</code> package’s purpose is to allow exploration of this relationship while requiring minimal user-end code.</p>
+<p>Users can run <strong>simulations</strong> on a given network, by choosing <strong>focuses</strong>, i.e. metrics / vertex attributes of interest. For large graphs, there are also programmatic considerations to keep runtimes reasonable.</p>
+<div id="choice-of-focuses" class="section level3">
+<h3>Choice of Focuses</h3>
+<ul>
+<li>These will be re-calculated and noted after each set of vertex deletions. Examples include:</li>
+<li>Size of the largest remaining component</li>
+<li>Number of components</li>
+<li>Mean degree</li>
+<li>Method(s) for</li>
+</ul>
+<p>This relationship’s explanatory variable, then, is the magnitude of modifications made,</p>
+<p>Studying this relationship programmatically which the <code>netrb</code> package aims to facilitate with minimal user-end code.</p>
+<p>Running such simulations in reasonable amounts of time entails choosing</p>
+<p>on natural networks or configuration models.</p>
+<ol style="list-style-type: decimal">
+<li>Begin with a graph representation of the network at a given state (typically full / unmodified).</li>
+<li>Delete a “chunk” of the graph (i.e. one or more vertices) according to some criterion (typically based on vertex attributes, e.g. highest-degree, random).</li>
+<li>Recalculate and record values of relevant metrics.</li>
+</ol>
+<p>In studying this, small graphs often present no challenges in light of runtime; that is, vertices can be deleted one-by-one, and metrics can be re-calculated at each step.</p>
 <div id="deletions" class="section level4">
 <h4>Deletions</h4>
+<p>Runtime considerations may make it best to delete several vertices at on</p>
 <ul>
-<li><strong>“batch size”</strong>, i.e. number of vertices to delete before re-calculating the metrics in question.</li>
-<li><strong>selection method</strong>, i.e. which vertex attribute will determine the order of deletions, e.g. highest degree, random.
+<li><strong>“Chunk” size</strong>, i.e. number of vertices to delete before re-calculating the metrics in question.</li>
+<li><strong>selection method</strong>, i.e. how to determine which vertices will be deleted in each chunk. e.g. highest degree, random.
 <ul>
 <li>Note:</li>
 </ul></li>
@@ -236,8 +258,9 @@ pre code {
 <!-- rnb-text-end -->
 </div>
 </div>
+</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiTmV0d29yayBSb2J1c3RuZXNzIEFuYWx5c2lzIGFuZCBIaWdoLVNwZWVkIE1ldHJpYyBBcHByb3hpbWF0aW9ucyIKYXV0aG9yOiAiTmljaG9sYXMgXCJLaWtvXCIgV2hpdGVsZXkiCm91dHB1dDoKICBodG1sX2RvY3VtZW50OgogICAgY29kZV9mb2xkaW5nOiBoaWRlCiAgICBkZl9wcmludDogcGFnZWQKICBodG1sX25vdGVib29rOiAKICAgIGNvZGVfZm9sZGluZzogaGlkZQogICAgZGZfcHJpbnQ6IHBhZ2VkCi0tLQoKYGBge3Igc2V0dXAsIGluY2x1ZGU9RkFMU0V9CmtuaXRyOjpvcHRzX2NodW5rJHNldChlY2hvID0gVFJVRSkKYGBgCgojIyBJbnRyb2R1Y3Rpb24KCk5ldHdvcmsgcm9idXN0bmVzcyBwcmltYXJpbHkgY29uY2VybnMgdGhlIGVmZmVjdCBvZiBfc3RydWN0dXJhbCBjaGFuZ2VzXyAodHlwaWNhbGx5IHZlcnRleCBkZWxldGlvbnMpIG9uIGEgZ3JhcGgncyBfbWV0cmljc18gc3VjaCBhcyBtZWFuIGRpc3RhbmNlLiAgQW5hbHl6aW5nIHRoaXMgcmVsYXRpb25zaGlwIHByZXNlbnRzIGEgZmV3IFRPRE9kZXNpZ24gY2hvaWNlczoKCiMjIyMgRGVsZXRpb25zCiogX18iYmF0Y2ggc2l6ZSJfXywgaS5lLiBudW1iZXIgb2YgdmVydGljZXMgdG8gZGVsZXRlIGJlZm9yZSByZS1jYWxjdWxhdGluZyB0aGUgbWV0cmljcyBpbiBxdWVzdGlvbi4KKiBfX3NlbGVjdGlvbiBtZXRob2RfXywgaS5lLiB3aGljaCB2ZXJ0ZXggYXR0cmlidXRlIHdpbGwgZGV0ZXJtaW5lIHRoZSBvcmRlciBvZiBkZWxldGlvbnMsIGUuZy4gaGlnaGVzdCBkZWdyZWUsIHJhbmRvbS4KICAqIE5vdGU6IAoKIyMjIyBNZXRyaWNzCgpTdWNoIHJlcXVpcmVzIHJlLWNhbGN1bGF0aW5nIHRoZSBtZXRyaWNzIGluIHF1ZXN0aW9uIGFmdGVyIGVhY2ggImJhdGNoIiBvZiBkZWxldGlvbnMsIHdoaWNoIGNhbiBiZSBkb25lIHdpdGggcmVhc29uYWJsZSBydW50aW0KCkFmdGVyIGEgY2VydGFpbiBudW1iZXIgb2YgdmVydGljZXMgYXJlIGRlbGV0ZWQsIAo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiTmV0d29yayBSb2J1c3RuZXNzIEFuYWx5c2lzIGFuZCBIaWdoLVNwZWVkIE1ldHJpYyBBcHByb3hpbWF0aW9ucyIKYXV0aG9yOiAiTmljaG9sYXMgXCJLaWtvXCIgV2hpdGVsZXkiCm91dHB1dDoKICBodG1sX2RvY3VtZW50OgogICAgdGhlbWU6IGZsYXRseQogICAgY29kZV9mb2xkaW5nOiBoaWRlCiAgICBkZl9wcmludDogcGFnZWQKICBodG1sX25vdGVib29rOiAKICAgIGNvZGVfZm9sZGluZzogaGlkZQogICAgZGZfcHJpbnQ6IHBhZ2VkCi0tLQoKYGBge3Igc2V0dXAsIGluY2x1ZGU9RkFMU0V9CmtuaXRyOjpvcHRzX2NodW5rJHNldChlY2hvID0gVFJVRSkKYGBgCgojIyBJbnRyb2R1Y3Rpb24KCkEgbmV0d29yaydzIHJvYnVzdG5lc3MgcHJpbWFyaWx5IGNvbmNlcm5zIGhvdyBfX3N0cnVjdHVyYWwgbW9kaWZpY2F0aW9uc19fICh0eXBpY2FsbHkgdmVydGV4IGRlbGV0aW9ucykgaW1wYWN0IHRoZSBuZXR3b3JrJ3MgX19tZXRyaWNzX18uCgpUaGUgYG5ldHJiYCBwYWNrYWdlJ3MgcHVycG9zZSBpcyB0byBhbGxvdyBleHBsb3JhdGlvbiBvZiB0aGlzIHJlbGF0aW9uc2hpcCB3aGlsZSByZXF1aXJpbmcgbWluaW1hbCB1c2VyLWVuZCBjb2RlLgoKVXNlcnMgY2FuIHJ1biBfX3NpbXVsYXRpb25zX18gb24gYSBnaXZlbiBuZXR3b3JrLCBieSBjaG9vc2luZyBfX2ZvY3VzZXNfXywgaS5lLiBtZXRyaWNzIC8gdmVydGV4IGF0dHJpYnV0ZXMgb2YgaW50ZXJlc3QuICBGb3IgbGFyZ2UgZ3JhcGhzLCB0aGVyZSBhcmUgYWxzbyBwcm9ncmFtbWF0aWMgY29uc2lkZXJhdGlvbnMgdG8ga2VlcCBydW50aW1lcyByZWFzb25hYmxlLgoKIyMjIENob2ljZSBvZiBGb2N1c2VzCgoqICBUaGVzZSB3aWxsIGJlIHJlLWNhbGN1bGF0ZWQgYW5kIG5vdGVkIGFmdGVyIGVhY2ggc2V0IG9mIHZlcnRleCBkZWxldGlvbnMuICBFeGFtcGxlcyBpbmNsdWRlOgogICogU2l6ZSBvZiB0aGUgbGFyZ2VzdCByZW1haW5pbmcgY29tcG9uZW50CiAgKiBOdW1iZXIgb2YgY29tcG9uZW50cwogICogTWVhbiBkZWdyZWUKKiBNZXRob2QocykgZm9yIAoKClRoaXMgcmVsYXRpb25zaGlwJ3MgZXhwbGFuYXRvcnkgdmFyaWFibGUsIHRoZW4sIGlzIHRoZSBtYWduaXR1ZGUgb2YgbW9kaWZpY2F0aW9ucyBtYWRlLCAKClN0dWR5aW5nIHRoaXMgcmVsYXRpb25zaGlwIHByb2dyYW1tYXRpY2FsbHkgIHdoaWNoIHRoZSBgbmV0cmJgIHBhY2thZ2UgYWltcyB0byBmYWNpbGl0YXRlIHdpdGggbWluaW1hbCB1c2VyLWVuZCBjb2RlLgoKUnVubmluZyBzdWNoIHNpbXVsYXRpb25zIGluIHJlYXNvbmFibGUgYW1vdW50cyBvZiB0aW1lIGVudGFpbHMgY2hvb3NpbmcgCgoKCgogb24gbmF0dXJhbCBuZXR3b3JrcyBvciBjb25maWd1cmF0aW9uIG1vZGVscy4gIAoKCgoxLiBCZWdpbiB3aXRoIGEgZ3JhcGggcmVwcmVzZW50YXRpb24gb2YgdGhlIG5ldHdvcmsgYXQgYSBnaXZlbiBzdGF0ZSAodHlwaWNhbGx5IGZ1bGwgLyB1bm1vZGlmaWVkKS4KMi4gRGVsZXRlIGEgImNodW5rIiBvZiB0aGUgZ3JhcGggKGkuZS4gb25lIG9yIG1vcmUgdmVydGljZXMpIGFjY29yZGluZyB0byBzb21lIGNyaXRlcmlvbiAodHlwaWNhbGx5IGJhc2VkIG9uIHZlcnRleCBhdHRyaWJ1dGVzLCBlLmcuIGhpZ2hlc3QtZGVncmVlLCByYW5kb20pLgozLiBSZWNhbGN1bGF0ZSBhbmQgcmVjb3JkIHZhbHVlcyBvZiByZWxldmFudCBtZXRyaWNzLgoKSW4gc3R1ZHlpbmcgdGhpcywgc21hbGwgZ3JhcGhzIG9mdGVuIHByZXNlbnQgbm8gY2hhbGxlbmdlcyBpbiBsaWdodCBvZiBydW50aW1lOyB0aGF0IGlzLCB2ZXJ0aWNlcyBjYW4gYmUgZGVsZXRlZCBvbmUtYnktb25lLCBhbmQgbWV0cmljcyBjYW4gYmUgcmUtY2FsY3VsYXRlZCBhdCBlYWNoIHN0ZXAuCgojIyMjIERlbGV0aW9ucwoKUnVudGltZSBjb25zaWRlcmF0aW9ucyBtYXkgbWFrZSBpdCBiZXN0IHRvIGRlbGV0ZSBzZXZlcmFsIHZlcnRpY2VzIGF0IG9uCgoqIF9fIkNodW5rIiBzaXplX18sIGkuZS4gbnVtYmVyIG9mIHZlcnRpY2VzIHRvIGRlbGV0ZSBiZWZvcmUgcmUtY2FsY3VsYXRpbmcgdGhlIG1ldHJpY3MgaW4gcXVlc3Rpb24uCiogX19zZWxlY3Rpb24gbWV0aG9kX18sIGkuZS4gaG93IHRvIGRldGVybWluZSB3aGljaCB2ZXJ0aWNlcyB3aWxsIGJlICBkZWxldGVkIGluIGVhY2ggY2h1bmsuICAgZS5nLiBoaWdoZXN0IGRlZ3JlZSwgcmFuZG9tLgogICogTm90ZTogCgojIyMjIE1ldHJpY3MKClN1Y2ggcmVxdWlyZXMgcmUtY2FsY3VsYXRpbmcgdGhlIG1ldHJpY3MgaW4gcXVlc3Rpb24gYWZ0ZXIgZWFjaCAiYmF0Y2giIG9mIGRlbGV0aW9ucywgd2hpY2ggY2FuIGJlIGRvbmUgd2l0aCByZWFzb25hYmxlIHJ1bnRpbQoKQWZ0ZXIgYSBjZXJ0YWluIG51bWJlciBvZiB2ZXJ0aWNlcyBhcmUgZGVsZXRlZCwgCg==</div>
 
 
 

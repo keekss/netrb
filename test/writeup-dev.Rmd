@@ -3,6 +3,7 @@ title: "Network Robustness Analysis and High-Speed Metric Approximations"
 author: "Nicholas \"Kiko\" Whiteley"
 output:
   html_document:
+    theme: flatly
     code_folding: hide
     df_print: paged
   html_notebook: 
@@ -16,11 +17,46 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-Network robustness primarily concerns the effect of _structural changes_ (typically vertex deletions) on a graph's _metrics_ such as mean distance.  Analyzing this relationship presents a few TODOdesign choices:
+A network's robustness primarily concerns how __structural modifications__ (typically vertex deletions) impact the network's __metrics__.
+
+The `netrb` package's purpose is to allow exploration of this relationship while requiring minimal user-end code.
+
+Users can run __simulations__ on a given network, by choosing __focuses__, i.e. metrics / vertex attributes of interest.  For large graphs, there are also programmatic considerations to keep runtimes reasonable.
+
+### Choice of Focuses
+
+*  These will be re-calculated and noted after each set of vertex deletions.  Examples include:
+  * Size of the largest remaining component
+  * Number of components
+  * Mean degree
+* Method(s) for 
+
+
+This relationship's explanatory variable, then, is the magnitude of modifications made, 
+
+Studying this relationship programmatically  which the `netrb` package aims to facilitate with minimal user-end code.
+
+Running such simulations in reasonable amounts of time entails choosing 
+
+
+
+
+ on natural networks or configuration models.  
+
+
+
+1. Begin with a graph representation of the network at a given state (typically full / unmodified).
+2. Delete a "chunk" of the graph (i.e. one or more vertices) according to some criterion (typically based on vertex attributes, e.g. highest-degree, random).
+3. Recalculate and record values of relevant metrics.
+
+In studying this, small graphs often present no challenges in light of runtime; that is, vertices can be deleted one-by-one, and metrics can be re-calculated at each step.
 
 #### Deletions
-* __"batch size"__, i.e. number of vertices to delete before re-calculating the metrics in question.
-* __selection method__, i.e. which vertex attribute will determine the order of deletions, e.g. highest degree, random.
+
+Runtime considerations may make it best to delete several vertices at on
+
+* __"Chunk" size__, i.e. number of vertices to delete before re-calculating the metrics in question.
+* __selection method__, i.e. how to determine which vertices will be  deleted in each chunk.   e.g. highest degree, random.
   * Note: 
 
 #### Metrics

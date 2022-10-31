@@ -25,9 +25,9 @@ library(pbmcapply)
 
 
 ```{r}
-
-b <- timed_lapply(1:4, function(n) (mean(sample(n))))
-b
+foo <- function(na) (sample(1:5, 1))
+t <- timed_lapply(1:5, foo, times_run = 5)
+t
 ```
 
 
