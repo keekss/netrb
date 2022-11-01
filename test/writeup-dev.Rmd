@@ -1,5 +1,5 @@
 ---
-title: "Network Robustness Analysis and High-Speed Metric Approximations"
+title: "Network Robustness Simulations with `netrb` and Distance-Sampling Approximations"
 author: "Nicholas \"Kiko\" Whiteley"
 output:
   html_document:
@@ -15,52 +15,115 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+## Purpose
 
-A network's robustness primarily concerns how __structural modifications__ (typically vertex deletions) impact the network's __metrics__.
+Network robustness can be studied _abstractly_, with generalizations like percolation theory, or more _concretely_ on a given network, by observing how _structural changes_ like vertex deletions affect the network's other attributes -- typically, one or more of its _metrics_.
 
-The `netrb` package's purpose is to allow exploration of this relationship while requiring minimal user-end code.
+The `netrb` package allows users to explore of this "concrete" notion of robustness via lightweight _simulations_ on their chosen graph(s) and parameters of interest.
 
-Users can run __simulations__ on a given network, by choosing __focuses__, i.e. metrics / vertex attributes of interest.  For large graphs, there are also programmatic considerations to keep runtimes reasonable.
+Simulations on larger networks entail potential limitations to keep runtimes reasonable, in light of which `netrb` provides customizability, parallelization, and progress monitoring.
 
-### Choice of Focuses
+## Simulation overview
 
-*  These will be re-calculated and noted after each set of vertex deletions.  Examples include:
-  * Size of the largest remaining component
-  * Number of components
-  * Mean degree
-* Method(s) for 
+For each simulation, the user primarily chooses:
+
+* A _response metric_ (i.e., a graph metric, either predefined or custom) intended to reveal something about the network's robustness.  This metric will be calculated and noted initially and after each set of vertex deletions.
+* The _order_ in which vertices are deleted, either randomly or according to a vertex attribute such as degree.
+
+The main simulation function, `netrb::fun_vs_del()` (name explained later), supports simulation of 
+<u>multiple vertex deletion orders</u> ("VDOs") concurrently.  This can be thought of as simulating a "timeline of deletions" on a separate copy of the graph for each VDO (though implementation involves only one copy at a time).
+
+`fun_vs_del()` returns a `base::data.frame` containing:
+
+* A single "X" column denoting the fraction of total (or number of) vertices deleted.
+* One "Y" column for each VDO, containing the value of the response metric after the corresponding fraction of vertex deletions according to the column's VDO.
+
+By default, results are also plotted during `fun_vs_del()`'s runtime.  Each VDO corresponds with a series in the plot.
+
+_Note:_ `fun_vs_del()` is synonymous with `netrb::simulate()`, which has the same parameters and simply calls `fun_vs_del()` with the passed arguments.
+
+#### Additional parameters
+
+```{r}
+params_additional <- data.frame(list(
+  'Name'        = c('`del_min`', '`del_max`', '`nchunks`', '`recalc_VDOs`'),
+  'Default'     = c('`0`', '`0.5`', '`20`', '`FALSE`'),
+  'Description' = c('Minimum deletion level',
+                    'Maximum deletion level',
+                    'Number of deletion chunks',
+                    ''),
+  'Definition'  = c('Starting fraction or number of nodes deleted.',
+                    'Ending fraction or number of nodes deleted.',
+                    'Total number of sets of deletions to occur in the simulation.',
+                    'Whether or not to recalculate VDOs after each set of deletions.')
+))
+knitr::kable(params_additional, align = 'lrll')
+```
+### Keeping runtimes reasonable with large graphs
+
+Many graph operations have constant or linear time complexity with respect to vertex and/or edge count.  For example, retrieving the total number of vertices, each vertex's degree, or even more sophisticated vertex attributes like Google's PageRank, complete within a few seconds at most, even with millions of vertices.
+
+Other operations, however, have quadratic or cubic time complexity with respect to vertex and/or edge count -- most notably, those involving direct calculation of many or all shortest paths -- and can become unreasonably slow for vertex counts well under a hundred thousand.
+
+Thus, keeping runtimes reasonable with large graphs may require the user to observe some of the following limitations:
+
+* A distance-independent response metric such as largest component size, number of components, or mean degree.
+* Distance-independent VDOs, determined, for example, by degree, PageRank, or randomly.
+* A low number of deletion chunks, low maximum deletion level, or narrow total deletion window (max - min).
+* Distance-sampling approximations, discussed TODO.
+
+To help monitor and reduce runtimes, `netrb` also implements, by default, parallelization via `parallel::mclapply()` and progress bar printing via the `pbapply` package.
+
+## Running simulations
 
 
-This relationship's explanatory variable, then, is the magnitude of modifications made, 
 
-Studying this relationship programmatically  which the `netrb` package aims to facilitate with minimal user-end code.
+### Simulator setup (optional; highly recommended)
 
-Running such simulations in reasonable amounts of time entails choosing 
-
+Though `fun_vs_del()` can be called without passing a `netrb::simulator` instance, creating a simulator (S3 class) via `netrb::simulator()` and passing it into simulation calls has several 
 
 
+```{r}
+sim_bens <- data.frame(list(
+  'Benefit' = c('a', 'b'),
+  'Details' = c('c', 'd')
+))
+knitr::kable(sim_bens)
+```
 
- on natural networks or configuration models.  
+
+Benefit | Details
+:-- | :--
+Easier simulation calls | By default, 
+Consistency/reproducibility, convenience, and potential performance improvements, 
+
+#### Unconnected distance
+
+With extensive or even moderate vertex deletions, the original graph will generally fracture into smaller components, leaving many once-connected vertices unconnected.
+
+Thus, if the response metric involves distance, _unconnected distance_ (i.e., the value assigned to denote the "distance" between two unconnected vertices), though ultimately arbitrary, becomes more important.
+
+One approach, as in `igraph::mean_distance(..., unconnected = TRUE)` is to ignore all unconnected distances from the mean calculation, generally leading to lower mean distance as the graph fractures into smaller components. 
+
+Passing `unconnected = FALSE`, or calculating distances without averaging them, as in `igraph::distances()`, assigns an unconnected distance of `INF`.  This makes the mean distance also `INF`, which may not be very helpful in the context of `fun_vs_del()`.
+
+For example, when designing or modifying a road network, one may wish to maximize connectivity between vertices (which typically represent intersections) in the face of vertex deletions (which could represent temporary or permanent blocking of intersections), and thus seeks to minimize the graph's mean distance therein.
+
+Ignoring unconnected distances would not be helpful, since it would incentivize many unconnected road clusters, contradicting the goal of connectivity, and an unconnected distance of `INF` would render the response metric useless once the graph has two or more components.
+
+One alternative approach is to assign an unconnected distances of the graph's $\text{diameter} + 1$, as it disincentivizes unconnected components while leaving mean distance calculations possible.
+
+Thus, the default unconnected distance in `netrb::distances()` and `netrb::mean_distance()` is the original graph's $\text{diameter} + 1$, which is stored to in `simulator` if used to remain constant during `fun_vs_del()`.  All `netrb` functions allow a custom unconnected distance to be specified.
 
 
 
-1. Begin with a graph representation of the network at a given state (typically full / unmodified).
-2. Delete a "chunk" of the graph (i.e. one or more vertices) according to some criterion (typically based on vertex attributes, e.g. highest-degree, random).
-3. Recalculate and record values of relevant metrics.
 
-In studying this, small graphs often present no challenges in light of runtime; that is, vertices can be deleted one-by-one, and metrics can be re-calculated at each step.
+* _Note:_ It is highly recommended to pass a "simulation container" into `fun_vs_del()`.  Details / benefits are in the [section below](### Simulator setup (optional; recommended)), but reading this section about `fun_vs_del()` beforehand is helpful.
 
-#### Deletions
 
-Runtime considerations may make it best to delete several vertices at on
+### Parameters
 
-* __"Chunk" size__, i.e. number of vertices to delete before re-calculating the metrics in question.
-* __selection method__, i.e. how to determine which vertices will be  deleted in each chunk.   e.g. highest degree, random.
-  * Note: 
 
-#### Metrics
 
-Such requires re-calculating the metrics in question after each "batch" of deletions, which can be done with reasonable runtim
+`fun_vs_del()` is named as such because the response metric is passed into `fun_vs_del()` as a _function itself_, for example, `fun_vs_del(graph = g, FUN = igraph::mean_distance(), ...)`.  `FUN` is, in turn, called with the graph in question as an argument, plus any additional arguments.
 
-After a certain number of vertices are deleted, 

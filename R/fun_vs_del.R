@@ -1,8 +1,8 @@
-func_vs_deletions <- function(sim,
+fun_vs_del <- function(sim,
                               func, ...,
                               attrs   = c('rand'),
                               del_min = 0,
-                              del_max = 0.9,
+                              del_max = 0.5,
                               nchunks = 20,
                               pass_graph  = TRUE,
                               reuse_dists = TRUE) {

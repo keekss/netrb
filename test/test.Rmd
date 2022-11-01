@@ -74,7 +74,7 @@ vcount(graphs$wa)
 
 
 ```{r}
-# fvd <- func_vs_deletions(sim, 
+# fvd <- fun_vs_del(sim, 
 #                          integrity,
 #                          vcount_orig = vcount(graphs$wa),
 #                          attrs = c('rand', 'clos'),
@@ -153,7 +153,7 @@ toc()
 
 ```{r}
 # TODO replace ALL `rs` with `sim`.
-res <- func_vs_deletions(
+res <- fun_vs_del(
   sim,
   integrity,
   attrs = c('rand', 'eign'),
@@ -169,6 +169,6 @@ res
 
 
 ```{r}
-plot_func_vs_deletions(res, 'a')
+plot_fun_vs_del(res, 'a')
 ```
 
