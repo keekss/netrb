@@ -183,8 +183,16 @@ pre code {
 
 <div id="purpose" class="section level2">
 <h2>Purpose</h2>
-<p>Network robustness can be studied <em>abstractly</em>, with generalizations like percolation theory, or more <em>concretely</em> on a given network, by observing how <em>structural changes</em> like vertex deletions affect the network’s other attributes – typically, one or more of its <em>metrics</em>.</p>
-<p>The <code>netrb</code> package allows users to explore of this “concrete” notion of robustness via lightweight <em>simulations</em> on their chosen graph(s) and parameters of interest.</p>
+<p>Though a network’s attributes can reveal much about its robustness, one may wish to experiment directly on a given network to this end.</p>
+<ul>
+<li>Niche metric(s) of interest</li>
+<li>Non-applicability of abstract robustness considerations, or lack of familiarity thereof</li>
+<li>Verification of abstract inferences</li>
+<li>Curiosity</li>
+</ul>
+<p>Enabling such experimentation with minimal user-end code is the aim of the <code>netrb</code> package.</p>
+<p>Users can carry out simulations to observe the effect of <em>structural changes</em> like vertex deletions affect the network’s other attributes – typically, one or more of its <em>metrics</em>.</p>
+<p>The allows users to explore of this “concrete” notion of robustness via lightweight <em>simulations</em> on their chosen graph(s) and parameters of interest.</p>
 <p>Simulations on larger networks entail potential limitations to keep runtimes reasonable, in light of which <code>netrb</code> provides customizability, parallelization, and progress monitoring.</p>
 </div>
 <div id="simulation-overview" class="section level2">
@@ -200,7 +208,7 @@ pre code {
 <li>A single “X” column denoting the fraction of total (or number of) vertices deleted.</li>
 <li>One “Y” column for each VDO, containing the value of the response metric after the corresponding fraction of vertex deletions according to the column’s VDO.</li>
 </ul>
-<p>By default, results are also plotted during <code>fun_vs_del()</code>’s runtime. Each VDO corresponds with a series in the plot.</p>
+<p>Results can also be plotted with <code>netrb::plot_cols_vs_one_col()</code>.</p>
 <p><em>Note:</em> <code>fun_vs_del()</code> is synonymous with <code>netrb::simulate()</code>, which has the same parameters and simply calls <code>fun_vs_del()</code> with the passed arguments.</p>
 <div id="additional-parameters" class="section level4">
 <h4>Additional parameters</h4>

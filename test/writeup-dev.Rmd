@@ -20,9 +20,20 @@ source('setup.R')
 
 ## Purpose
 
-Network robustness can be studied _abstractly_, with generalizations like percolation theory, or more _concretely_ on a given network, by observing how _structural changes_ like vertex deletions affect the network's other attributes -- typically, one or more of its _metrics_.
+Though a network's attributes can reveal much about its robustness, one may wish to experiment directly on a given network to this end.
 
-The `netrb` package allows users to explore of this "concrete" notion of robustness via lightweight _simulations_ on their chosen graph(s) and parameters of interest.
+* Niche metric(s) of interest
+* Non-applicability of abstract robustness considerations, or lack of familiarity thereof
+* Verification of abstract inferences
+* Curiosity
+
+Enabling such experimentation with minimal user-end code is the aim of the `netrb` package.
+
+This is done via simulations that record the effect of iterated _structural changes_ (currently, vertex deletions) on a _metric of interest_.
+
+The simulation function, `netrb::metric_vs_del()`, accepts <u>any function</u> as the independent variable, and allows one or more 
+
+The  allows users to explore of this "concrete" notion of robustness via lightweight _simulations_ on their chosen graph(s) and parameters of interest.
 
 Simulations on larger networks entail potential limitations to keep runtimes reasonable, in light of which `netrb` provides customizability, parallelization, and progress monitoring.
 
