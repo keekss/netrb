@@ -15,10 +15,31 @@ source('setup.R')
 kable(fread('tables/demo-mn-attr.csv'))
 ```
 
+```{r}
+m2 <- cbind(1, 1:4)
+colnames(m2) <- c('a', 'b')
+m2[-1]
+m2
+```
+
 
 ```{r echo = TRUE}
+
+
+
 g <- sample_natural_graph('mn')
-class(page_rank(g)$vector)
+
+
+x <- fun_vs_del(integrity,
+           graph = g,
+           del_min = 0,
+           del_max = 0.9,
+           nchunks = 10,
+           # del_attrs = 'random',
+
+           del_attrs = c('random', 'degree'),
+           vcount_orig = vcount(g))
+plot_cols_vs_one_col(x)
 ```
 
 

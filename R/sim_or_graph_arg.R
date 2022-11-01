@@ -9,10 +9,13 @@ sim_or_graph_arg <- function(
   else if (param == 'graph') return(
     if (!is.null(graph)) graph else sim$g
   )
+  else if (param == 'g_orig') return(
+    if (!is.null(sim)) sim$g_orig else duplicate(g)
+  )
   else if (param == 'diam') {
     if (!is.null(diam)) return(diam)
     # `sim` should always have a diameter.
-    else if (!is.null(sim$diam)) return(sim$diam)
+    else if (!is.null(sim)) return(sim$diam)
     else {
       print('Manually calculating diameter.  It is recommended to pre-calculate this for large graphs.')
       g <- sim_or_graph_arg('graph', sim = sim, graph = graph)

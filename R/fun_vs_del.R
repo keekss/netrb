@@ -4,68 +4,73 @@ fun_vs_del <- function(
     graph = NULL,
     del_attrs = c('random',
                   'page_rank',
-                  'degree'   = centr_degree(g)$res,
-                  'pagerank' = page_rank(g)$vector,
-                  'harmonic' = harmonic_centrality(g),
-                  'close'    = centr_clo(g)$res,
-                  'between'  = centr_betw(g)$res,
-                  'eigen'    = centr_eigen(g)$vector,
-                  ''),
+                  'degree',
+                  'pagerank',
+                  'harmonic',
+                  'close',
+                  'between',
+                  'eigen'),
     del_min = 0,
     del_max = 0.5,
     nchunks = 20,
+    seed_rand   = NULL,
+    recalc_VDOs = TRUE,
     pass_graph  = TRUE,
     reuse_dists = TRUE) {
 
 
+  g      <- sim_or_graph_arg('graph',  sim = sim, graph = graph)
+  g_orig <- sim_or_graph_arg('g_orig', sim = sim, graph = graph)
 
-  # require_class('simulator', sim, 'sim')
+  del_attrs <- match.arg(del_attrs,
+                         several.ok = TRUE)
 
-  # TODO allow to pass any graph, not just simulator.
-
-  # TODO docu doesn't matter which order extra parameters are in,
-  # as long as parameter name is specified.
-  # g <- duplicate(sim$g_orig)
-
-  func_name <- as.character(deparse(substitute(func)))
+  fun_name <- as.character(deparse(substitute(FUN)))
   # If the function name does not contain '::',
   # its library was not specified, so search for it
   # in `netrb` then `igraph` if not in `netrb`.
-  if (!(grepl('::', func_name, fixed = TRUE))) {
-    func <- verify_function(func_name)
+  if (!(grepl('::', fun_name, fixed = TRUE))) {
+    FUN <- match_metric_fun(fun_name)
   }
 
   result <- matrix(data = NA,
-                   nrow = length(attrs) + 1,
+                   nrow = length(del_attrs) + 1,
                    ncol = nchunks + 1)
-  rownames(result) <- c('del_frac', attrs)
+  rownames(result) <- c('del_frac', del_attrs)
 
-  .vcount <- vcount(sim$g_orig)
+  # TODO !!! if recalculating,
+  # make sure the graph is updated if a simulator is used
+  # TODO vdo() will not check.
+
+  .vcount <- vcount(g)
 
   # Since VDOs use vertex ids from the original graph,
   # "deleting" them via a boolean array allows for
   # fewer comparisons, and for vertices to be added back.
   vid_is_active <- matrix(data = TRUE,
-                          nrow = length(attrs),
+                          nrow = length(del_attrs),
                           ncol = .vcount)
-  rownames(vid_is_active) <- attrs
+  rownames(vid_is_active) <- del_attrs
 
-  .vdos <- vdos(sim, attrs)
+  .vdos <- vdos(del_attrs,
+                sim = sim,
+                graph = graph,
+                recalc = recalc_VDOs)
 
   vdo_chunk <- function(vdoi_start, vdoi_end) {
     .result <- matrix(data = .vdos[, vdoi_start:vdoi_end],
-                      nrow = length(attrs),
+                      nrow = length(del_attrs),
                       ncol = del_vdoi_end - del_vdoi_start + 1)
-    rownames(.result) <- attrs
+    rownames(.result) <- del_attrs
     return(.result)
   }
 
   del_vdo_chunk <- function(chunk) {
 
-    for (a in attrs) {
+    for (da in del_attrs) {
 
-      vids_to_delete <- as.integer(chunk[a, ])
-      vid_is_active[a, vids_to_delete] <- FALSE
+      vids_to_delete <- as.integer(chunk[da, ])
+      vid_is_active[da, vids_to_delete] <- FALSE
 
     }
     return(vid_is_active)
@@ -88,10 +93,10 @@ fun_vs_del <- function(
   }
   update_result <- function() {
     result['del_frac', chunk_idx] <- del_fracs[chunk_idx]
-    for (a in attrs) {
-      g <- induced_subgraph(graph = sim$g_orig,
+    for (a in del_attrs) {
+      g <- induced_subgraph(graph = g_orig,
                             vids  = vid_is_active[a,])
-      result[a, chunk_idx] <- func(g = g, ...)
+      result[a, chunk_idx] <- FUN(g = g, ...)
     }
     return(result)
   }

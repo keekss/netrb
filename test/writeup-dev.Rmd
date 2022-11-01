@@ -41,7 +41,7 @@ The main simulation function, `netrb::fun_vs_del()` (name explained later), supp
 * A single "X" column denoting the fraction of total (or number of) vertices deleted.
 * One "Y" column for each VDO, containing the value of the response metric after the corresponding fraction of vertex deletions according to the column's VDO.
 
-By default, results are also plotted during `fun_vs_del()`'s runtime.  Each VDO corresponds with a series in the plot.
+Results can also be plotted with `netrb::plot_cols_vs_one_col()`.
 
 _Note:_ `fun_vs_del()` is synonymous with `netrb::simulate()`, which has the same parameters and simply calls `fun_vs_del()` with the passed arguments.
 
