@@ -1,8 +1,9 @@
 mean_distance <- function(
-    sim   = NULL,
-    graph = NULL,
-    diam  = NULL,
-    unconn_dist = NULL) {
+  sim   = NULL,
+  graph = NULL,
+  diam  = NULL,
+  unconn_dist = NULL
+) {
 
   g <- sim_or_graph_arg('graph', sim = sim, graph = graph)
   if (is.null(unconn_dist)) {
@@ -20,6 +21,8 @@ mean_distance <- function(
     unconn_dist = unconn_dist
   )
 
+  # The only `NA` values were formerly zeroes
+  # by default, so they can be ignored.
   return(mean(dists, na.rm = TRUE))
 
 }

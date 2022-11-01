@@ -1,11 +1,12 @@
 distances <- function(
-    sim   = NULL,
-    graph = NULL,
-    v     = NULL,
-    to    = NULL,
-    diam  = NULL,
-    unconn_dist = NULL,
-    zero_as_NA  = TRUE) {
+  sim   = NULL,
+  graph = NULL,
+  v     = NULL,
+  to    = NULL,
+  diam  = NULL,
+  unconn_dist = NULL,
+  zero_as_NA  = TRUE
+) {
 
   g <- sim_or_graph_arg('graph', sim = sim, graph = graph)
   if (is.null(unconn_dist)) {

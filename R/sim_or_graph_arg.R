@@ -1,9 +1,10 @@
 sim_or_graph_arg <- function(
-    param,
-    sim   = NULL,
-    graph = NULL,
-    diam  = NULL,
-    unconn_dist = NULL) {
+  param,
+  sim   = NULL,
+  graph = NULL,
+  diam  = NULL,
+  unconn_dist = NULL
+) {
 
   if (is.null(sim) && is.null(g)) stop('Must specify simulator or graph.')
   else if (param == 'graph') return(
@@ -15,7 +16,7 @@ sim_or_graph_arg <- function(
   else if (param == 'diam') {
     if (!is.null(diam)) return(diam)
     # `sim` should always have a diameter.
-    else if (!is.null(sim)) return(sim$diam)
+    else if (!is.null(sim)) return(sim$diam_orig)
     else {
       # print('Manually calculating diameter.  It is recommended to pre-calculate this for large graphs.')
       g <- sim_or_graph_arg('graph', sim = sim, graph = graph)

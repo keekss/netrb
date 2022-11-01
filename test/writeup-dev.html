@@ -183,23 +183,23 @@ pre code {
 
 <div id="purpose" class="section level2">
 <h2>Purpose</h2>
-<p>Though a network’s attributes can reveal much about its robustness, one may wish to experiment directly on a given network to this end.</p>
+<p>Though a network’s attributes can reveal much about its robustness, direct experimentation on a given graph can also help, in light of, for example:</p>
 <ul>
-<li>Niche metric(s) of interest</li>
-<li>Non-applicability of abstract robustness considerations, or lack of familiarity thereof</li>
-<li>Verification of abstract inferences</li>
-<li>Curiosity</li>
+<li>Niche metric(s) of interest.</li>
+<li>Non-applicability of abstract robustness considerations, or lack of familiarity thereof.</li>
+<li>Verification of abstract inferences.</li>
+<li>Curiosity.</li>
 </ul>
-<p>Enabling such experimentation with minimal user-end code is the aim of the <code>netrb</code> package.</p>
-<p>The simulation function, <code>netrb::metric_vs_del()</code>, records the effect of iterated <em>structural changes</em> (currently, vertex deletions) on the value of a <em>metric of interest</em>. Multiple vertex deletion orders (“VDOs”) to be simulated concurrently, and the metric of interest is passed in as <u>any function</u> compatible with an <code>igraph</code> object.</p>
+<p><code>netrb</code> aims to facilitate this experimentation with minimal user-end code.</p>
+<p>Its main simulation function, <code>netrb::metric_vs_del()</code>, records the effect of iterated <em>structural changes</em> (currently, vertex deletions) on the value of a <em>metric of interest</em>. Multiple vertex deletion orders (“VDOs”) can be simulated concurrently, and the metric of interest is passed in as <u>any function</u> compatible with an <code>igraph</code> object.</p>
 <p>Simulations on larger networks entail potential limitations to keep runtimes reasonable, in light of which <code>netrb</code> provides customizability, parallelization, and progress monitoring.</p>
 </div>
 <div id="simulation-overview" class="section level2">
 <h2>Simulation overview</h2>
 <p><code>metric_vs_del()</code> returns a <code>base::data.frame</code> containing:</p>
 <ul>
-<li>A single “X” column denoting the fraction of total (or number of) vertices deleted.</li>
-<li>One “Y” column for each VDO, containing the value of the response metric after the corresponding fraction of vertex deletions according to the column’s VDO.</li>
+<li>A single “X” column denoting the fraction of total vertices deleted.</li>
+<li>One “Y” column for each VDO, containing response metric values recalculated after each corresponding fraction of vertex deletions according to the column’s VDO.</li>
 </ul>
 <p>Results can also be plotted with <code>netrb::plot_Ys_vs_X()</code>.</p>
 <p><em>Note:</em> <code>metric_vs_del()</code> is synonymous with <code>netrb::simulate()</code>, which has the same parameters and simply calls <code>metric_vs_del()</code> with the passed arguments.</p>

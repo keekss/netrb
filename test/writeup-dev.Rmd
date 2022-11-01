@@ -20,16 +20,16 @@ source('setup.R')
 
 ## Purpose
 
-Though a network's attributes can reveal much about its robustness, one may wish to experiment directly on a given network to this end.
+Though a network's attributes can reveal much about its robustness, direct experimentation on a given graph can also help, in light of, for example:
 
-* Niche metric(s) of interest
-* Non-applicability of abstract robustness considerations, or lack of familiarity thereof
-* Verification of abstract inferences
-* Curiosity
+* Niche metric(s) of interest.
+* Non-applicability of abstract robustness considerations, or lack of familiarity thereof.
+* Verification of abstract inferences.
+* Curiosity.
 
-Enabling such experimentation with minimal user-end code is the aim of the `netrb` package.
+`netrb` aims to facilitate this experimentation with minimal user-end code.
 
-The simulation function, `netrb::metric_vs_del()`, records the effect of iterated _structural changes_ (currently, vertex deletions) on the value of a _metric of interest_.  Multiple vertex deletion orders ("VDOs") can be simulated concurrently, and the metric of interest is passed in as <u>any function</u> compatible with an `igraph` object.
+Its main simulation function, `netrb::metric_vs_del()`, records the effect of iterated _structural changes_ (currently, vertex deletions) on the value of a _metric of interest_.  Multiple vertex deletion orders ("VDOs") can be simulated concurrently, and the metric of interest is passed in as <u>any function</u> compatible with an `igraph` object.
 
 Simulations on larger networks entail potential limitations to keep runtimes reasonable, in light of which `netrb` provides customizability, parallelization, and progress monitoring.
 
@@ -37,8 +37,8 @@ Simulations on larger networks entail potential limitations to keep runtimes rea
 
 `metric_vs_del()` returns a `base::data.frame` containing:
 
-* A single "X" column denoting the fraction of total (or number of) vertices deleted.
-* One "Y" column for each VDO, containing the value of the response metric after the corresponding fraction of vertex deletions according to the column's VDO.
+* A single "X" column denoting the fraction of total vertices deleted.
+* One "Y" column for each VDO, containing response metric values recalculated after each corresponding fraction of vertex deletions according to the column's VDO.
 
 Results can also be plotted with `netrb::plot_Ys_vs_X()`.
 
@@ -61,13 +61,16 @@ params_additional <- data.frame(list(
 ))
 knitr::kable(params_additional, align = 'lrll')
 ```
+
 ### Keeping runtimes reasonable with large graphs
+
+#### Be aware of distant-dependent functions
 
 Many graph operations have constant or linear time complexity with respect to vertex and/or edge count.  For example, retrieving the total number of vertices, each vertex's degree, or even more sophisticated vertex attributes like Google's PageRank, complete within a few seconds at most, even with millions of vertices.
 
 Other operations, however, have quadratic or cubic time complexity with respect to vertex and/or edge count -- most notably, those involving direct calculation of many or all shortest paths -- and can become unreasonably slow for vertex counts well under a hundred thousand.
 
-Thus, keeping runtimes reasonable with large graphs may require the user to observe some of the following limitations:
+#### Suggested limitations
 
 * A distance-independent response metric such as largest component size, number of components, or mean degree.
 * Distance-independent VDOs, determined, for example, by degree, PageRank, or randomly.
@@ -77,8 +80,6 @@ Thus, keeping runtimes reasonable with large graphs may require the user to obse
 To help monitor and reduce runtimes, `netrb` also implements, by default, parallelization via `parallel::mclapply()` and progress bar printing via the `pbapply` package.
 
 ## Running simulations
-
-
 
 ### Simulator setup (optional; highly recommended)
 
@@ -116,16 +117,3 @@ Ignoring unconnected distances would not be helpful, since it would incentivize 
 One alternative approach is to assign an unconnected distances of the graph's $\text{diameter} + 1$, as it disincentivizes unconnected components while leaving mean distance calculations possible.
 
 Thus, the default unconnected distance in `netrb::distances()` and `netrb::mean_distance()` is the original graph's $\text{diameter} + 1$, which is stored to in `simulator` if used to remain constant during `metric_vs_del()`.  All `netrb` functions allow a custom unconnected distance to be specified.
-
-
-
-
-* _Note:_ It is highly recommended to pass a "simulation container" into `metric_vs_del()`.  Details / benefits are in the [section below](### Simulator setup (optional; recommended)), but reading this section about `metric_vs_del()` beforehand is helpful.
-
-
-### Parameters
-
-
-
-`metric_vs_del()` is named as such because the response metric is passed into `metric_vs_del()` as a _function itself_, for example, `metric_vs_del(graph = g, FUN = igraph::mean_distance(), ...)`.  `FUN` is, in turn, called with the graph in question as an argument, plus any additional arguments.
-

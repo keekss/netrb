@@ -1,6 +1,7 @@
 sample_natural_graph <- function(
   choice   = c('pg', 'mn', 'ir', 'wa', 'cr'),
-  root_dir = sprintf('%s/networks', getwd())) {
+  root_dir = sprintf('%s/networks', getwd())
+) {
 
   if (!(dir.exists(root_dir))) stop(
     'Invalid root directory for network files.'

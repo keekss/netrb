@@ -1,24 +1,24 @@
 metric_vs_del <- function(
-    metric_fun, ...,
-    sim   = NULL,
-    graph = NULL,
-    del_attrs = c('random',
-                  'page_rank',
-                  'degree',
-                  'pagerank',
-                  'harmonic',
-                  'close',
-                  'between',
-                  'eigen'),
-    del_min = 0,
-    del_max = 0.5,
-    nchunks = 10,
-    seed_rand   = NULL,
-    recalc_VDOs = TRUE,
-    pass_graph  = TRUE,
-    reuse_dists = FALSE) {
-
-
+  metric_fun, ...,
+  sim   = NULL,
+  graph = NULL,
+  del_attrs = c(
+    'random',
+    'page_rank',
+    'degree',
+    'pagerank',
+    'harmonic',
+    'close',
+    'between',
+    'eigen'),
+  del_min = 0,
+  del_max = 0.5,
+  nchunks = 10,
+  seed_rand   = NULL,
+  recalc_VDOs = TRUE,
+  pass_graph  = TRUE,
+  reuse_dists = FALSE
+) {
 
   g      <- sim_or_graph_arg('graph',  sim = sim, graph = graph)
   g_orig <- sim_or_graph_arg('g_orig', sim = sim, graph = graph)
@@ -90,7 +90,7 @@ metric_vs_del <- function(
   del_vdoi_end   <- 1
   if (del_min > 0) {
 
-    del_vdoi_end <- to_idx(size = del_min, arr_len = .vcount)
+    del_vdoi_end <- to_idx(size = del_min, vec_len = .vcount)
     .vdo_chunk   <- .vdos[, 1:del_vdoi_end]
     vid_is_active <- del_vdo_chunk(.vdo_chunk)
     del_vdoi_start <- del_vdoi_end + 1
@@ -106,7 +106,8 @@ metric_vs_del <- function(
   }
   result <- update_result()
   chunk_idx <- 2
-  for (cei in chunk_end_indices(arr_len = .vcount,
+  # Iterate chunk end indices
+  for (cei in chunk_end_indices(vec_len = .vcount,
                                 nchunks = nchunks,
                                 start   = del_vdoi_start,
                                 end     = del_max)) {

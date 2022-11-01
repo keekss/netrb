@@ -1,12 +1,14 @@
 plot_Ys_vs_X <- function(
-    df,
-    x_col_name   = 'del_frac',
-    x_axis_label = 'Vertices Deleted (Fraction of Total)',
-    y_axis_label = 'Y',
-    title        = sprintf('%s vs. %s',
-                           y_axis_label,
-                           x_axis_label),
-    legend_title = 'VDO Attribute') {
+  df,
+  x_col_name   = 'del_frac',
+  x_axis_label = 'Vertices Deleted (Fraction of Total)',
+  y_axis_label = 'Y',
+  title        = sprintf('%s vs. %s',
+                         y_axis_label,
+                         x_axis_label),
+  legend_title = 'VDO Attribute',
+  return_plot  = FALSE
+) {
 
   x_col_idx <- match(
     x     = x_col_name,
@@ -15,7 +17,7 @@ plot_Ys_vs_X <- function(
 
   if (ncol(df) == 2) {
     df <- as.data.frame(cbind(
-      df[, x_col_idx],
+      df[,  x_col_idx],
       df[, -x_col_idx]
     ))
     colnames(df) <- c('x', 'value')
@@ -51,11 +53,7 @@ plot_Ys_vs_X <- function(
          title = title,
          color = legend_title)
 
-#   }
+  print(result)
 
-
-
-  # TODO labels etc.
-
-  return(result)
+  if (return_plot) return(result)
 }

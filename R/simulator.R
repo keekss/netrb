@@ -11,19 +11,20 @@
 #'
 #' @examples
 simulator <- function(
-    graph,
-    .name,
-    nchunks     = 5,
-    diam        = NA,
-    unconn_dist = NA, # `diam` + 1
-    seed_rand   = 1,
-    vrb         = 1,
-    from_scratch = FALSE,
-    trim_to_largest_component = TRUE) {
+  graph,
+  .name,
+  nchunks     = 5,
+  diam        = NA,
+  unconn_dist = NA, # `diam` + 1
+  seed_rand   = 1,
+  vrb         = 1,
+  from_scratch = FALSE,
+  trim_to_largest_component = TRUE
+) {
 
   if (is.null(seed_rand)) logf('Not standardizing random seed.  For standardized results, pass a value for `seed_rand`.')
   else {
-    if (seed_rand < 0) stop('Negative random seeds are reserve for distance reuse functions.')
+    # if (seed_rand < 0) warning('Negative random seeds are reserved for distance reuse functions.')
     logf(
       'Setting random seed to %d.  Default is 1; to leave seed unspecified, pass `seed_rand` of `NULL`.',
       seed_rand)
@@ -35,6 +36,8 @@ simulator <- function(
 
   root_dir <- sprintf('%s/%s', all_sims_dir, .name)
   ensure_dir_exists(root_dir, must_be_empty = from_scratch)
+
+  g <- graph
 
   # By default, if `g` has multiple components, trim it to be
   # only the largest component, since stats for distances, etc.
@@ -49,22 +52,10 @@ simulator <- function(
 
   vertex_attr(g, 'vid_orig') <- V(g)
 
-  # TODO
-  # g_orig <- duplicate(g)
-  # lockBinding("g_orig", globalenv())
-
-  # ensure_dir_exists(sprintf('%s/vdos', root_dir))
-  # vdo_rand_path <- sprintf('%s/vdos/rand.csv', root_dir)
-  # if (!(file.exists(vdo_rand_path))) {
-  #   if (!is.na(seed_rand)) set.seed(seed_rand)
-  #   rand_vertex_order <- as.list(sample(1:vcount(g)))
-  #   fwrite(rand_vertex_order, file = vdo_rand_path)
-  # }
-  set.seed(seed_rand)
+  if (!is.na(seed_rand)) set.seed(seed_rand)
   vdo_rand   <- sample(1:vcount(g))
-  set.seed(max(2, seed_rand + 1)) # 0 and 1 are the same
+  if (!is.na(seed_rand)) set.seed(max(2, seed_rand + 1)) # 0 and 1 are the same
   tiebreaker <- sample(1:vcount(g))
-
 
   # Calculate diameter if not specified
   if (is.na(diam)) {
@@ -77,20 +68,17 @@ simulator <- function(
     unconn_dist <- diam + 1
   }
 
-  # TODO write summary
 
   return(list(
-    class      = 'simulator',
-    # g          = g,
-    # Copy `g` as a backup.
-    g_orig     = g,#g_orig,
-    vdo_rand   = vdo_rand,
-    tiebreaker = tiebreaker,
-    root_dir   = root_dir,
-    .name      = .name,
-    diam_orig       = diam,
-    unconn_dist   = unconn_dist,
-    seed_rand  = seed_rand,
-    vrb        = vrb
+    class       = 'simulator',
+    g_orig      = g,
+    vdo_rand    = vdo_rand,
+    tiebreaker  = tiebreaker,
+    root_dir    = root_dir,
+    .name       = .name,
+    diam_orig   = diam,
+    unconn_dist = unconn_dist,
+    seed_rand   = seed_rand,
+    vrb         = vrb
   ))
 }

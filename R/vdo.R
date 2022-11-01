@@ -1,13 +1,13 @@
-vdo <- function(del_attr, # Vertex attribute
-                sim    = NULL,
-                graph  = NULL,
-                recalc = FALSE) {
+vdo <- function(
+  del_attr, # Vertex attribute
+  sim    = NULL,
+  graph  = NULL,
+  recalc = FALSE
+) {
 
   if (!recalc && is.null(sim)) stop(
     'Must define a simulator to reuse VDOs.'
   )
-
-
 
   if (recalc) {
     g <- graph

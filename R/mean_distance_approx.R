@@ -1,12 +1,13 @@
-mean_distance_approx <- function(sim = NA, # TODO add sim stuff, standardize with distances function?
-                                 g   = NA,
-                                 N = NA,
-                                 lpr = NA,
-                                 fit = NA,
-                                 pro = NA,
-                                 vs1 = NA,
-                                 vs2 = NA,
-                                 times_run = 1) {
+mean_distance_approx <- function(
+  sim   = NULL,
+  graph = NULL,
+  N     = NULL,
+  lpr = NA,
+  fit = NA,
+  pro = NA,
+  vs1 = NA,
+  vs2 = NA,
+  times_run = 1) {
   foo10 <- function() {
     x <- rnorm(N, sample(lpr, size=N, replace=TRUE), fit$bw)
     x <- x - min(x)

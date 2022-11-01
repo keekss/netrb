@@ -1,29 +1,31 @@
-timed_lapply <- function(x, func, ...,
-                         times_run = 1L,
-                         ncores    = NA,
-                         randomize_order   = TRUE,
-                         return_times_only = FALSE,
-                         print_progress = FALSE) {
+timed_lapply <- function(
+  x, FUN, ...,
+  times_run = 1L,
+  ncores    = NA,
+  randomize_order   = TRUE,
+  return_times_only = FALSE,
+  print_progress = FALSE
+) {
 
   if (is.na(ncores)) ncores <- detectCores() - 1
 
   if (randomize_order) x <- sample(x)
 
-  apply_func <- if (print_progress) {
+  apply_fun <- if (print_progress) {
     pbmclapply
   } else mclapply
 
   if (return_times_only) {
-    time_of_func <- function(x_i) {
+    time_of_fun <- function(x_i) {
       mb <- microbenchmark(
-        func(x_i, ...),
+        FUN(x_i, ...),
         times = times_run,
         unit  = 's'
       )
       return(summary(mb)$mean)
     }
-    result <- unlist(apply_func(
-      x, time_of_func,
+    result <- unlist(apply_fun(
+      x, time_of_fun,
       mc.cores  = ncores
     ))
     if (randomize_order) {
@@ -39,7 +41,7 @@ timed_lapply <- function(x, func, ...,
     y_and_t_for_x_i <- function(x_i) {
       y_i_total <- 0
       mb <- microbenchmark(
-        y_i_total <- (y_i_total + func(x_i, ...)),
+        y_i_total <- (y_i_total + FUN(x_i, ...)),
         times = times_run,
         unit  = 's'
       )
@@ -48,7 +50,7 @@ timed_lapply <- function(x, func, ...,
       # Return as vector instead of list for performance
       return(c(y_i, t_i))
     }
-    y_and_t = apply_func(
+    y_and_t = apply_fun(
       x, y_and_t_for_x_i,
       mc.cores  = ncores
     )
