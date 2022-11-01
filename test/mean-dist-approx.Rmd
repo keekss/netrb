@@ -140,7 +140,7 @@ hist(harmonic_centrality(g,
 
 ```{r}
 xyt <- timed_lapply(samp_vcs, mean_distance_sample, g = g)
-plot_cols_vs_one_col(xyt, 'x')
+plot_Ys_vs_X(xyt, 'x')
 ```
 
 

@@ -74,7 +74,7 @@ vcount(graphs$wa)
 
 
 ```{r}
-# fvd <- fun_vs_del(sim, 
+# fvd <- metric_vs_del(sim, 
 #                          integrity,
 #                          vcount_orig = vcount(graphs$wa),
 #                          attrs = c('rand', 'clos'),
@@ -82,7 +82,7 @@ vcount(graphs$wa)
 
 ```
 ```{r}
-# plot_cols_vs_one_col(fvd)
+# plot_Ys_vs_X(fvd)
 
 
 ```
@@ -153,7 +153,7 @@ toc()
 
 ```{r}
 # TODO replace ALL `rs` with `sim`.
-res <- fun_vs_del(
+res <- metric_vs_del(
   sim,
   integrity,
   attrs = c('rand', 'eign'),
@@ -169,6 +169,6 @@ res
 
 
 ```{r}
-plot_fun_vs_del(res, 'a')
+plot_metric_vs_del(res, 'a')
 ```
 

@@ -1,28 +1,28 @@
-match_metric_fun <- function(fun_name) {
+match_metric_fun <- function(metric_fun_name) {
 
   log_library_choice <- function(choice) {
-    logf('Using `%s::%s()` for `fun_vs_del()`.',
+    logf('Using `%s::%s()` for `metric_vs_del()`.',
          choice,
-         fun_name)
+         metric_fun_name)
   }
   # Search `netrb` for the function, then `igraph` if not in `netrb`.
   tryCatch(
     {
-      FUN <- getFromNamespace(fun_name, 'netrb')
+      metric_fun <- getFromNamespace(metric_fun_name, 'netrb')
       log_library_choice('netrb')
-      return(FUN)
+      return(metric_fun)
     },
     error = function(condition) {
       tryCatch(
         {
-          FUN <- getFromNamespace(fun_name, 'igraph')
+          metric_fun <- getFromNamespace(metric_fun_name, 'igraph')
           log_library_choice('igraph')
-          return(FUN)
+          return(metric_fun)
         },
         error = function(condition_2) {
           logf('Function `%s()` not found in `netrb` or `igraph`.  Attempting to match...',
-               fun_name)
-          return(match.fun(fun_name, descend = FALSE))
+               metric_fun_name)
+          return(match.fun(metric_fun_name, descend = FALSE))
         }
       )
     }

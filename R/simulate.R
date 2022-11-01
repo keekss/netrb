@@ -1,1 +1,1 @@
-simulate <- function(...) netrb::fun_vs_del(...)
+simulate <- function(...) netrb::metric_vs_del(...)

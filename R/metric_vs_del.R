@@ -1,5 +1,5 @@
-fun_vs_del <- function(
-    FUN, ...,
+metric_vs_del <- function(
+    metric_fun, ...,
     sim   = NULL,
     graph = NULL,
     del_attrs = c('random',
@@ -12,11 +12,12 @@ fun_vs_del <- function(
                   'eigen'),
     del_min = 0,
     del_max = 0.5,
-    nchunks = 20,
+    nchunks = 10,
     seed_rand   = NULL,
     recalc_VDOs = TRUE,
     pass_graph  = TRUE,
-    reuse_dists = TRUE) {
+    reuse_dists = FALSE) {
+
 
 
   g      <- sim_or_graph_arg('graph',  sim = sim, graph = graph)
@@ -25,12 +26,14 @@ fun_vs_del <- function(
   del_attrs <- match.arg(del_attrs,
                          several.ok = TRUE)
 
-  fun_name <- as.character(deparse(substitute(FUN)))
+  metric_fun_name <- as.character(
+    deparse(substitute(metric_fun))
+  )
   # If the function name does not contain '::',
   # its library was not specified, so search for it
   # in `netrb` then `igraph` if not in `netrb`.
-  if (!(grepl('::', fun_name, fixed = TRUE))) {
-    FUN <- match_metric_fun(fun_name)
+  if (!(grepl('::', metric_fun_name, fixed = TRUE))) {
+    metric_fun <- match_metric_fun(metric_fun_name)
   }
 
   result <- matrix(data = NA,
@@ -53,8 +56,8 @@ fun_vs_del <- function(
   rownames(vid_is_active) <- del_attrs
 
   .vdos <- vdos(del_attrs,
-                sim = sim,
-                graph = graph,
+                sim    = sim,
+                graph  = graph,
                 recalc = recalc_VDOs)
 
   vdo_chunk <- function(vdoi_start, vdoi_end) {
@@ -86,9 +89,10 @@ fun_vs_del <- function(
   del_vdoi_start <- 1
   del_vdoi_end   <- 1
   if (del_min > 0) {
+
     del_vdoi_end <- to_idx(size = del_min, arr_len = .vcount)
-    vdo_chunk   <- .vdos[1:del_vdoi_end]
-    vid_is_active <- del_vdo_chunk(vdo_chunk)
+    .vdo_chunk   <- .vdos[, 1:del_vdoi_end]
+    vid_is_active <- del_vdo_chunk(.vdo_chunk)
     del_vdoi_start <- del_vdoi_end + 1
   }
   update_result <- function() {
@@ -96,7 +100,7 @@ fun_vs_del <- function(
     for (a in del_attrs) {
       g <- induced_subgraph(graph = g_orig,
                             vids  = vid_is_active[a,])
-      result[a, chunk_idx] <- FUN(g = g, ...)
+      result[a, chunk_idx] <- metric_fun(graph = g, ...)
     }
     return(result)
   }

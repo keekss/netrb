@@ -30,16 +30,20 @@ m2
 g <- sample_natural_graph('mn')
 
 
-x <- fun_vs_del(integrity,
-           graph = g,
-           del_min = 0,
-           del_max = 0.9,
-           nchunks = 10,
-           # del_attrs = 'random',
-
-           del_attrs = c('random', 'degree'),
-           vcount_orig = vcount(g))
-plot_cols_vs_one_col(x)
+x <- metric_vs_del(
+ netrb::integrity,
+ # diam = 99,
+ # unconn_dist = 100,
+ graph = g,
+ # del_min = 0.1,
+ del_max = 0.5,
+ nchunks = 5,
+ # del_attrs = 'random',
+vcount_orig = vcount(g),
+ del_attrs = c('random', 'degree', 'pagerank')
+)
+           
+plot_Ys_vs_X(x, y_axis_label = 'Integrity')
 ```
 
 

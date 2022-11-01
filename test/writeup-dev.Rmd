@@ -29,32 +29,20 @@ Though a network's attributes can reveal much about its robustness, one may wish
 
 Enabling such experimentation with minimal user-end code is the aim of the `netrb` package.
 
-This is done via simulations that record the effect of iterated _structural changes_ (currently, vertex deletions) on a _metric of interest_.
-
-The simulation function, `netrb::metric_vs_del()`, accepts <u>any function</u> as the independent variable, and allows one or more 
-
-The  allows users to explore of this "concrete" notion of robustness via lightweight _simulations_ on their chosen graph(s) and parameters of interest.
+The simulation function, `netrb::metric_vs_del()`, records the effect of iterated _structural changes_ (currently, vertex deletions) on the value of a _metric of interest_.  Multiple vertex deletion orders ("VDOs") can be simulated concurrently, and the metric of interest is passed in as <u>any function</u> compatible with an `igraph` object.
 
 Simulations on larger networks entail potential limitations to keep runtimes reasonable, in light of which `netrb` provides customizability, parallelization, and progress monitoring.
 
 ## Simulation overview
 
-For each simulation, the user primarily chooses:
-
-* A _response metric_ (i.e., a graph metric, either predefined or custom) intended to reveal something about the network's robustness.  This metric will be calculated and noted initially and after each set of vertex deletions.
-* The _order_ in which vertices are deleted, either randomly or according to a vertex attribute such as degree.
-
-The main simulation function, `netrb::fun_vs_del()` (name explained later), supports simulation of 
-<u>multiple vertex deletion orders</u> ("VDOs") concurrently.  This can be thought of as simulating a "timeline of deletions" on a separate copy of the graph for each VDO (though implementation involves only one copy at a time).
-
-`fun_vs_del()` returns a `base::data.frame` containing:
+`metric_vs_del()` returns a `base::data.frame` containing:
 
 * A single "X" column denoting the fraction of total (or number of) vertices deleted.
 * One "Y" column for each VDO, containing the value of the response metric after the corresponding fraction of vertex deletions according to the column's VDO.
 
-Results can also be plotted with `netrb::plot_cols_vs_one_col()`.
+Results can also be plotted with `netrb::plot_Ys_vs_X()`.
 
-_Note:_ `fun_vs_del()` is synonymous with `netrb::simulate()`, which has the same parameters and simply calls `fun_vs_del()` with the passed arguments.
+_Note:_ `metric_vs_del()` is synonymous with `netrb::simulate()`, which has the same parameters and simply calls `metric_vs_del()` with the passed arguments.
 
 #### Additional parameters
 
@@ -94,7 +82,7 @@ To help monitor and reduce runtimes, `netrb` also implements, by default, parall
 
 ### Simulator setup (optional; highly recommended)
 
-Though `fun_vs_del()` can be called without passing a `netrb::simulator` instance, creating a simulator (S3 class) via `netrb::simulator()` and passing it into simulation calls has several 
+Though `metric_vs_del()` can be called without passing a `netrb::simulator` instance, creating a simulator (S3 class) via `netrb::simulator()` and passing it into simulation calls has several 
 
 
 ```{r}
@@ -119,7 +107,7 @@ Thus, if the response metric involves distance, _unconnected distance_ (i.e., th
 
 One approach, as in `igraph::mean_distance(..., unconnected = TRUE)` is to ignore all unconnected distances from the mean calculation, generally leading to lower mean distance as the graph fractures into smaller components. 
 
-Passing `unconnected = FALSE`, or calculating distances without averaging them, as in `igraph::distances()`, assigns an unconnected distance of `INF`.  This makes the mean distance also `INF`, which may not be very helpful in the context of `fun_vs_del()`.
+Passing `unconnected = FALSE`, or calculating distances without averaging them, as in `igraph::distances()`, assigns an unconnected distance of `INF`.  This makes the mean distance also `INF`, which may not be very helpful in the context of `metric_vs_del()`.
 
 For example, when designing or modifying a road network, one may wish to maximize connectivity between vertices (which typically represent intersections) in the face of vertex deletions (which could represent temporary or permanent blocking of intersections), and thus seeks to minimize the graph's mean distance therein.
 
@@ -127,17 +115,17 @@ Ignoring unconnected distances would not be helpful, since it would incentivize 
 
 One alternative approach is to assign an unconnected distances of the graph's $\text{diameter} + 1$, as it disincentivizes unconnected components while leaving mean distance calculations possible.
 
-Thus, the default unconnected distance in `netrb::distances()` and `netrb::mean_distance()` is the original graph's $\text{diameter} + 1$, which is stored to in `simulator` if used to remain constant during `fun_vs_del()`.  All `netrb` functions allow a custom unconnected distance to be specified.
+Thus, the default unconnected distance in `netrb::distances()` and `netrb::mean_distance()` is the original graph's $\text{diameter} + 1$, which is stored to in `simulator` if used to remain constant during `metric_vs_del()`.  All `netrb` functions allow a custom unconnected distance to be specified.
 
 
 
 
-* _Note:_ It is highly recommended to pass a "simulation container" into `fun_vs_del()`.  Details / benefits are in the [section below](### Simulator setup (optional; recommended)), but reading this section about `fun_vs_del()` beforehand is helpful.
+* _Note:_ It is highly recommended to pass a "simulation container" into `metric_vs_del()`.  Details / benefits are in the [section below](### Simulator setup (optional; recommended)), but reading this section about `metric_vs_del()` beforehand is helpful.
 
 
 ### Parameters
 
 
 
-`fun_vs_del()` is named as such because the response metric is passed into `fun_vs_del()` as a _function itself_, for example, `fun_vs_del(graph = g, FUN = igraph::mean_distance(), ...)`.  `FUN` is, in turn, called with the graph in question as an argument, plus any additional arguments.
+`metric_vs_del()` is named as such because the response metric is passed into `metric_vs_del()` as a _function itself_, for example, `metric_vs_del(graph = g, FUN = igraph::mean_distance(), ...)`.  `FUN` is, in turn, called with the graph in question as an argument, plus any additional arguments.
 
