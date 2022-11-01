@@ -1,12 +1,25 @@
-fun_vs_del <- function(sim,
-                              func, ...,
-                              attrs   = c('rand'),
-                              del_min = 0,
-                              del_max = 0.5,
-                              nchunks = 20,
-                              pass_graph  = TRUE,
-                              reuse_dists = TRUE) {
-  require_class('simulator', sim, 'sim')
+fun_vs_del <- function(
+    FUN, ...,
+    sim   = NULL,
+    graph = NULL,
+    del_attrs = c('random',
+                  'page_rank',
+                  'degree'   = centr_degree(g)$res,
+                  'pagerank' = page_rank(g)$vector,
+                  'harmonic' = harmonic_centrality(g),
+                  'close'    = centr_clo(g)$res,
+                  'between'  = centr_betw(g)$res,
+                  'eigen'    = centr_eigen(g)$vector,
+                  ''),
+    del_min = 0,
+    del_max = 0.5,
+    nchunks = 20,
+    pass_graph  = TRUE,
+    reuse_dists = TRUE) {
+
+
+
+  # require_class('simulator', sim, 'sim')
 
   # TODO allow to pass any graph, not just simulator.
 
@@ -29,7 +42,7 @@ fun_vs_del <- function(sim,
 
   .vcount <- vcount(sim$g_orig)
 
-  # Since VAOs use vertex ids from the original graph,
+  # Since VDOs use vertex ids from the original graph,
   # "deleting" them via a boolean array allows for
   # fewer comparisons, and for vertices to be added back.
   vid_is_active <- matrix(data = TRUE,
@@ -37,17 +50,17 @@ fun_vs_del <- function(sim,
                           ncol = .vcount)
   rownames(vid_is_active) <- attrs
 
-  .vaos <- vaos(sim, attrs)
+  .vdos <- vdos(sim, attrs)
 
-  vao_chunk <- function(vaoi_start, vaoi_end) {
-    .result <- matrix(data = .vaos[, vaoi_start:vaoi_end],
+  vdo_chunk <- function(vdoi_start, vdoi_end) {
+    .result <- matrix(data = .vdos[, vdoi_start:vdoi_end],
                       nrow = length(attrs),
-                      ncol = del_vaoi_end - del_vaoi_start + 1)
+                      ncol = del_vdoi_end - del_vdoi_start + 1)
     rownames(.result) <- attrs
     return(.result)
   }
 
-  del_vao_chunk <- function(chunk) {
+  del_vdo_chunk <- function(chunk) {
 
     for (a in attrs) {
 
@@ -65,13 +78,13 @@ fun_vs_del <- function(sim,
   pb <- startpb(min = 0, max = nchunks)
   chunk_idx <- 1
   setpb(pb, chunk_idx)
-  del_vaoi_start <- 1
-  del_vaoi_end   <- 1
+  del_vdoi_start <- 1
+  del_vdoi_end   <- 1
   if (del_min > 0) {
-    del_vaoi_end <- to_idx(size = del_min, arr_len = .vcount)
-    vao_chunk   <- .vaos[1:del_vaoi_end]
-    vid_is_active <- del_vao_chunk(vao_chunk)
-    del_vaoi_start <- del_vaoi_end + 1
+    del_vdoi_end <- to_idx(size = del_min, arr_len = .vcount)
+    vdo_chunk   <- .vdos[1:del_vdoi_end]
+    vid_is_active <- del_vdo_chunk(vdo_chunk)
+    del_vdoi_start <- del_vdoi_end + 1
   }
   update_result <- function() {
     result['del_frac', chunk_idx] <- del_fracs[chunk_idx]
@@ -86,15 +99,15 @@ fun_vs_del <- function(sim,
   chunk_idx <- 2
   for (cei in chunk_end_indices(arr_len = .vcount,
                                 nchunks = nchunks,
-                                start   = del_vaoi_start,
+                                start   = del_vdoi_start,
                                 end     = del_max)) {
-    del_vaoi_end <- cei
-    chunk <- vao_chunk(del_vaoi_start, del_vaoi_end)
+    del_vdoi_end <- cei
+    chunk <- vdo_chunk(del_vdoi_start, del_vdoi_end)
     # print(as.integer(chunk))
-    vid_is_active <- del_vao_chunk(chunk)
+    vid_is_active <- del_vdo_chunk(chunk)
     result <- update_result()
 
-    del_vaoi_start <- del_vaoi_end + 1
+    del_vdoi_start <- del_vdoi_end + 1
     chunk_idx <- chunk_idx + 1
     setpb(pb, chunk_idx)
   }

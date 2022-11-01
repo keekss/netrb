@@ -10,21 +10,22 @@
 #' @param vrb       `(integer)`  : level of verbosity for printing progress bars, etc.
 #'
 #' @examples
-simulator <- function(g,
-                      .name,
-                      nchunks     = 5,
-                      diam        = NA,
-                      unconn_dist = NA, # `diam` + 1
-                      seed_rand   = 1,
-                      vrb         = 1,
-                      from_scratch = FALSE,
-                      trim_to_largest_component = TRUE) {
+simulator <- function(
+    graph,
+    .name,
+    nchunks     = 5,
+    diam        = NA,
+    unconn_dist = NA, # `diam` + 1
+    seed_rand   = 1,
+    vrb         = 1,
+    from_scratch = FALSE,
+    trim_to_largest_component = TRUE) {
 
-  if (is.na(seed_rand)) logf('Not standardizing random seed.  For standardized results, pass a value for `seed_rand`.')
+  if (is.null(seed_rand)) logf('Not standardizing random seed.  For standardized results, pass a value for `seed_rand`.')
   else {
     if (seed_rand < 0) stop('Negative random seeds are reserve for distance reuse functions.')
     logf(
-      'Setting random seed to %d.  Default is 1; to leave seed unspecified, pass `seed_rand` of `NA`.',
+      'Setting random seed to %d.  Default is 1; to leave seed unspecified, pass `seed_rand` of `NULL`.',
       seed_rand)
     set.seed(seed_rand)
   }
@@ -48,18 +49,19 @@ simulator <- function(g,
 
   vertex_attr(g, 'vid_orig') <- V(g)
 
+  # TODO
   # g_orig <- duplicate(g)
   # lockBinding("g_orig", globalenv())
 
-  # ensure_dir_exists(sprintf('%s/vaos', root_dir))
-  # vao_rand_path <- sprintf('%s/vaos/rand.csv', root_dir)
-  # if (!(file.exists(vao_rand_path))) {
+  # ensure_dir_exists(sprintf('%s/vdos', root_dir))
+  # vdo_rand_path <- sprintf('%s/vdos/rand.csv', root_dir)
+  # if (!(file.exists(vdo_rand_path))) {
   #   if (!is.na(seed_rand)) set.seed(seed_rand)
   #   rand_vertex_order <- as.list(sample(1:vcount(g)))
-  #   fwrite(rand_vertex_order, file = vao_rand_path)
+  #   fwrite(rand_vertex_order, file = vdo_rand_path)
   # }
   set.seed(seed_rand)
-  vao_rand   <- sample(1:vcount(g))
+  vdo_rand   <- sample(1:vcount(g))
   set.seed(max(2, seed_rand + 1)) # 0 and 1 are the same
   tiebreaker <- sample(1:vcount(g))
 
@@ -71,7 +73,7 @@ simulator <- function(g,
     toc()
   }
   if (is.na(unconn_dist)) {
-    logf('Using default unconnected distance of (`diam` + 1).')
+    logf('Using default unconnected distance of (`diameter` + 1).')
     unconn_dist <- diam + 1
   }
 
@@ -82,7 +84,7 @@ simulator <- function(g,
     # g          = g,
     # Copy `g` as a backup.
     g_orig     = g,#g_orig,
-    vao_rand   = vao_rand,
+    vdo_rand   = vdo_rand,
     tiebreaker = tiebreaker,
     root_dir   = root_dir,
     .name      = .name,

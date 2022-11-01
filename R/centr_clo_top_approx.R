@@ -16,23 +16,23 @@ centr_clo_top_approx <- function(
   vcount_dist <- to_idx(size = distance_sample_frac,
                         arr_len = vcount(g))
 
-  vao_pgrk_all <- order(log(page_rank(sim$g_orig)$vector),
+  vdo_pgrk_all <- order(log(page_rank(sim$g_orig)$vector),
                         sim$tiebreaker,
                         decreasing = TRUE)
-  vao_pgrk <- vao_pgrk_all[1:vcount_pgrk]
-  vao_dist_idx <- unique(round(seq(from = 1,
+  vdo_pgrk <- vdo_pgrk_all[1:vcount_pgrk]
+  vdo_dist_idx <- unique(round(seq(from = 1,
                             to   = min(10 * vcount_pgrk, vcount(g)),
                             length.out = vcount_dist)))
-  vids_dist <- vao_pgrk_all[vao_dist_idx]
+  vids_dist <- vdo_pgrk_all[vdo_dist_idx]
   # print('va')
-  # print(vao_pgrk_all)
+  # print(vdo_pgrk_all)
   # print('vp')
-  # print(vao_pgrk)
+  # print(vdo_pgrk)
   # print('vd')
   # print(vids_dist)
 
-  # print(vao_pgrk)
-  # pgrks <- page_rank(g, vids = vao_pgrk)$vector
+  # print(vdo_pgrk)
+  # pgrks <- page_rank(g, vids = vdo_pgrk)$vector
   prr <- 1:vcount_pgrk
   # print(prr)
   # print(max(pgrks))
@@ -44,18 +44,18 @@ centr_clo_top_approx <- function(
   #                                 'vid_orig'),
   #                     size = vcount_dist)
   # vids_dist <- sort(vids_dist)
-  # length(intersect(vao_pgrk, vids_dist))
+  # length(intersect(vdo_pgrk, vids_dist))
   # print(vids_dist)
   # print(class(vids_dist))
   tic('dists')
   dists <- distances(sim,
-                     v = vao_pgrk,
+                     v = vdo_pgrk,
                      to = vids_dist)
   toc()
   print(dim(dists))
 
   colnames(dists) <- vids_dist
-  rownames(dists) <- vao_pgrk
+  rownames(dists) <- vdo_pgrk
 
   dists_total <- apply(dists, 1, sum)
   # avg_clos  <- 1/avg_dists
@@ -75,7 +75,7 @@ centr_clo_top_approx <- function(
 
   res_o <- order(res)[1:vcount_top]
 
-  res_vids <- vao_pgrk[res_o]
+  res_vids <- vdo_pgrk[res_o]
   # print(res_vids)
   return(res_vids)
 }

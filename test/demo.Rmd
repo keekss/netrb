@@ -1,0 +1,32 @@
+---
+title: "`netrb` Simulation Demos"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+source('setup.R')
+```
+
+## Minnesota Roads
+
+```{r}
+kable(fread('tables/demo-mn-attr.csv'))
+```
+
+
+```{r echo = TRUE}
+g <- sample_natural_graph('mn')
+class(page_rank(g)$vector)
+```
+
+
+```{r}
+foo <- function(x = c('a', 'b', 'c')) {
+  x <- match.arg(x, several.ok = TRUE)
+  return(x)
+}
+foo(c('a', 'b'))
+```
+

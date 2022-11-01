@@ -1,25 +1,25 @@
-vao <- function(sim, .attr) {
+vdo <- function(sim, .attr) {
 
-  if (.attr == 'rand') return(sim$vao_rand)
+  if (.attr == 'rand') return(sim$vdo_rand)
   else {
-    vp <- vao_path(sim, .attr)
+    vp <- vdo_path(sim, .attr)
 
     # The simulator will always be set up with
-    # random VAO determined.
+    # random VDO determined.
     if (file.exists(vp)) return(fread(vp))
     else {
-      # ticf('Calculating VAO for `%s` and writing to file...', .attr)
+      # ticf('Calculating VDO for `%s` and writing to file...', .attr)
       g <- sim$g_orig
-      vertex_attr_vals <- switch(
+      vertex_attr_vals <- as.numeric(switch(
         .attr,
-        'degr' = centr_degree(g)$res,
-        'pgrk' = page_rank(g)$vector,
-        # TODO change
-        'clos' = igraph::centr_clo(g)$res,
-        'betw' = centr_betw(g)$res,
-        'eign' = centr_eigen(g)$vector,
+        'degree'   = degree(g),
+        'pagerank' = page_rank(g)$vector,
+        'harmonic' = harmonic_centrality(g),
+        'close'    = centr_clo(g)$res,
+        'between'  = centr_betw(g)$res,
+        'eigen'    = centr_eigen(g)$vector,
         stop('Invalid attribute: ', .attr)
-      )
+      ))
       # Order vertices by decreasing value of attribute.
       # There may be many ties (e.g. 25% of vertices
       # in the power grid graph have degree of 1),
@@ -32,7 +32,7 @@ vao <- function(sim, .attr) {
               sim$tiebreaker,
               decreasing = TRUE)
       )
-      ensure_dir_exists(sprintf('%s/vaos', sim$root_dir))
+      ensure_dir_exists(sprintf('%s/vdos', sim$root_dir))
       # fwrite(result, file = vp)
       # toc()
       return(result)

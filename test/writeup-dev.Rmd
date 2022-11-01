@@ -6,13 +6,16 @@ output:
     theme: flatly
     code_folding: hide
     df_print: paged
-  html_notebook: 
+  html_notebook:
     code_folding: hide
     df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+source('setup.R')
 ```
 
 ## Purpose
