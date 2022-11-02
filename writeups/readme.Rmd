@@ -2,18 +2,18 @@
 title: "`netrb`: Network Robustness Simulation Functions"
 author: "Nicholas \"Kiko\" Whiteley"
 output:
+  pdf_document: default
+  html_notebook:
+    code_folding: hide
+    df_print: paged
   html_document:
     theme: flatly
     code_folding: hide
     df_print: paged
-  html_notebook:
-    code_folding: hide
-    df_print: paged
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
 source('setup.R')
 ```

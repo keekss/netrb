@@ -41,7 +41,6 @@ plot_Ys_vs_X <- function(
       df[, x_col_idx],
       reshape2::melt(df[, -x_col_idx])[, -1]
     )
-    print(df)
     colnames(df) <- c('x', 'y', 'value')
   }
 
