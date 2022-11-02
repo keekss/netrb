@@ -2,18 +2,19 @@
 title: '`netrb` Simulation Demos'
 author: "Nicholas \"Kiko\" Whiteley"
 output:
+  pdf_document: default
+  html_notebook:
+    code_folding: hide
+    df_print: paged
   html_document:
     theme: flatly
     code_folding: hide
     df_print: paged
-  html_notebook:
-    code_folding: hide
-    df_print: paged
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo    = TRUE)
+knitr::opts_chunk$set(include = TRUE)
 
 source('setup.R')
 ```
@@ -34,7 +35,7 @@ We can plot this metric for deletion order according to, for example, the follow
 
 ### Ignoring unconnected distances (`igraph` default)
 
-```{r echo = TRUE}
+```{r}
 del_attrs <- c(
   'random',
   'pagerank',
@@ -44,9 +45,16 @@ del_attrs <- c(
 
 mn_md_ignore <- metric_vs_del(
   igraph::mean_distance,
-  graph = g_mn,
+  graph     = g_mn,
   del_attrs = del_attrs,
-  nchunks = 50
+  nchunks   = 50,
+  plot      = FALSE
+)
+
+plot_Ys_vs_X(
+  mn_md_ignore,
+  y_axis_label = 'Mean Distance (Ignoring Unconnected)',
+  x_axis_label = 'Vertex Deletions'
 )
 ```
 
@@ -54,16 +62,23 @@ mn_md_ignore <- metric_vs_del(
 ### Using unconnected distance of $\text{diameter} + 1$
 
 
-```{r echo = TRUE}
-
+```{r}
 mn_md_unconn_dist <- metric_vs_del(
   netrb::mean_distance,
   unconn_dist = sample_natural_graph_diameter('mn') + 1,
   graph = g_mn,
   del_attrs = del_attrs,
-  nchunks = 50
+  nchunks = 50,
+  plot = FALSE
+)
+
+plot_Ys_vs_X(
+  mn_md_unconn_dist,
+  y_axis_label = 'Mean Distance (With Unconnected Distance)',
+  x_axis_label = 'Vertex Deletions'
 )
 ```
+
 
 
 ## Anonymous function
@@ -76,7 +91,7 @@ Take, for example, the Internet Routers network:
 
 ### Size of largest remaining component
 
-```{r echo = TRUE}
+```{r}
 g_ir <- sample_natural_graph('ir')
 
 vcount_orig <- vcount(g_ir)
@@ -88,13 +103,15 @@ ir_lc <- metric_vs_del(
    return(lc_size / vcount_orig)
  },
  del_max = 0.1,
- nchunks = 20,
+ nchunks = 50,
  del_attrs = c('random', 'pagerank', 'harmonic', 'eigen'),
  plot = FALSE
 )
+
 plot_Ys_vs_X(
   ir_lc,
   y_axis_label = 'Size of Largest Remaining Component',
   x_axis_label = 'Vertex Deletions'
 )
 ```
+

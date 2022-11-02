@@ -1,3 +1,23 @@
+#' Robustness Simulation: Metric vs. Vertex Deletions
+#'
+#' @param metric_fun
+#' @param ...
+#' @param sim
+#' @param graph
+#' @param del_attrs
+#' @param del_min
+#' @param del_max
+#' @param nchunks
+#' @param plot
+#' @param seed_rand
+#' @param recalc_VDOs
+#' @param pass_graph
+#' @param reuse_dists
+#'
+#' @return
+#' @export
+#'
+#' @examples
 metric_vs_del <- function(
   metric_fun, ...,
   sim   = NULL,
@@ -42,10 +62,6 @@ metric_vs_del <- function(
                    nrow = length(del_attrs) + 1,
                    ncol = nchunks + 1)
   rownames(result) <- c('del_frac', del_attrs)
-
-  # TODO !!! if recalculating,
-  # make sure the graph is updated if a simulator is used
-  # TODO vdo() will not check.
 
   .vcount <- vcount(g_orig)
 

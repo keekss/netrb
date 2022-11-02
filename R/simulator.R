@@ -2,12 +2,15 @@
 #'
 #' A container for performing robustness analysis on a graph while preserving the original.
 #'
-#' @param g        `(igraph)`    : the graph to analyze.
-#' @param name     `(character)` : a unique identifier (string) for `rb_state` methods.
+#' @param .name     `(character)` : a unique identifier (string) for `rb_state` methods.
 #' @param diam     `(integer)`   : diameter of `g` if pre-calculated.  Pre-calculation is highly recommended, as `rb_graph` objects are instantiated fairly often in this package, and diameter calculation for connected graphs is `O(E)`.
-#' @param unconn_dist `(integer)`   : if two vertices are unconnected, `igraph::distances()` will return `INF` by default.  To help with averages (instead of ignoring `INF` values or having an `INF` average), `unconn_dist` can be assigned a value to replace `INF`. The default value is the graph's `diameter + 1`, to remain unchanged even as diameter decreases due to vertex removal in `rb_tester` functions.
+#' @param unconn_dist `(integer)`   : if two vertices are unconnected, `igraph::distances()` will return `INF` by default.  To help with averages (instead of ignoring `INF` values or having an `INF` average), `unconn_dist` can be assigned a value to replace `INF`. The default value is the graph's `diameter + 1`.
 #' @param seed_rand `(integer)`  : random number generator seed passed to `base::set.seed()`.
 #' @param vrb       `(integer)`  : level of verbosity for printing progress bars, etc.
+#' @param graph
+#' @param nchunks
+#' @param from_scratch
+#' @param trim_to_largest_component
 #'
 #' @examples
 simulator <- function(

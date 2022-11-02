@@ -1,6 +1,15 @@
 ---
 title: "Mean Distance Approximations"
-output: html_document
+author: "Nicholas \"Kiko\" Whiteley"
+output:
+  html_document:
+    theme: flatly
+    code_folding: hide
+    df_print: paged
+  html_notebook:
+    code_folding: hide
+    df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -58,8 +67,7 @@ mean(c(3,Inf,1000))
 g <- graphs$ir
 n <- vcount(g)
 rrn <- round(sqrt(sqrt(n)))
-# g <- sample_gnm(n,2*n)
-# TODO make applies use random seeds
+
 foo <- function(na) {
   d <- igraph::distances(g,
                v =  sample(1:n,rrn),
