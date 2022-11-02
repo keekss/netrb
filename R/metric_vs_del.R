@@ -4,7 +4,6 @@ metric_vs_del <- function(
   graph = NULL,
   del_attrs = c(
     'random',
-    'page_rank',
     'degree',
     'pagerank',
     'harmonic',
@@ -14,14 +13,14 @@ metric_vs_del <- function(
   del_min = 0,
   del_max = 0.5,
   nchunks = 10,
+  plot    = TRUE,
   seed_rand   = NULL,
   recalc_VDOs = TRUE,
   pass_graph  = TRUE,
   reuse_dists = FALSE
 ) {
 
-  g      <- sim_or_graph_arg('graph',  sim = sim, graph = graph)
-  g_orig <- sim_or_graph_arg('g_orig', sim = sim, graph = graph)
+  g_orig <- sim_or_graph_arg('graph', sim = sim, graph = graph)
 
   del_attrs <- match.arg(del_attrs,
                          several.ok = TRUE)
@@ -29,10 +28,13 @@ metric_vs_del <- function(
   metric_fun_name <- as.character(
     deparse(substitute(metric_fun))
   )
-  # If the function name does not contain '::',
-  # its library was not specified, so search for it
-  # in `netrb` then `igraph` if not in `netrb`.
-  if (!(grepl('::', metric_fun_name, fixed = TRUE))) {
+
+  # If the function name contains '::', its library was already specified.
+  # If it contains '{' or 'function', it is an anonymous function.
+  # Otherwise, search `netrb` first, then `igraph` for the function.
+  if (!(any(grepl('::', metric_fun_name, fixed = TRUE),
+            grepl('{',  metric_fun_name, fixed = TRUE),
+            grepl('function',  metric_fun_name, fixed = TRUE)))) {
     metric_fun <- match_metric_fun(metric_fun_name)
   }
 
@@ -45,7 +47,7 @@ metric_vs_del <- function(
   # make sure the graph is updated if a simulator is used
   # TODO vdo() will not check.
 
-  .vcount <- vcount(g)
+  .vcount <- vcount(g_orig)
 
   # Since VDOs use vertex ids from the original graph,
   # "deleting" them via a boolean array allows for
@@ -55,6 +57,7 @@ metric_vs_del <- function(
                           ncol = .vcount)
   rownames(vid_is_active) <- del_attrs
 
+  # NOTE: VDO recalculation is not yet fully supported.
   .vdos <- vdos(del_attrs,
                 sim    = sim,
                 graph  = graph,
@@ -90,9 +93,9 @@ metric_vs_del <- function(
   del_vdoi_end   <- 1
   if (del_min > 0) {
 
-    del_vdoi_end <- to_idx(size = del_min, vec_len = .vcount)
-    .vdo_chunk   <- .vdos[, 1:del_vdoi_end]
-    vid_is_active <- del_vdo_chunk(.vdo_chunk)
+    del_vdoi_end   <- to_idx(size = del_min, vec_len = .vcount)
+    .vdo_chunk     <- .vdos[, 1:del_vdoi_end]
+    vid_is_active  <- del_vdo_chunk(.vdo_chunk)
     del_vdoi_start <- del_vdoi_end + 1
   }
   update_result <- function() {
@@ -100,7 +103,13 @@ metric_vs_del <- function(
     for (a in del_attrs) {
       g <- induced_subgraph(graph = g_orig,
                             vids  = vid_is_active[a,])
-      result[a, chunk_idx] <- metric_fun(graph = g, ...)
+
+      if (pass_graph) {
+        result[a, chunk_idx] <- metric_fun(graph = g, ...)
+      } else {
+        result[a, chunk_idx] <- metric_fun(...)
+      }
+
     }
     return(result)
   }
@@ -113,7 +122,7 @@ metric_vs_del <- function(
                                 end     = del_max)) {
     del_vdoi_end <- cei
     chunk <- vdo_chunk(del_vdoi_start, del_vdoi_end)
-    # print(as.integer(chunk))
+
     vid_is_active <- del_vdo_chunk(chunk)
     result <- update_result()
 
@@ -121,7 +130,17 @@ metric_vs_del <- function(
     chunk_idx <- chunk_idx + 1
     setpb(pb, chunk_idx)
   }
-  # print(vid_is_active)
+
   closepb(pb)
-  return(t(result))
+
+  # return(result)
+
+  result <- t(result)
+
+  if (plot) plot_Ys_vs_X(
+    result,
+    y_axis_label = metric_fun_name,
+  )
+
+  return(result)
 }

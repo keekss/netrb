@@ -14,8 +14,8 @@ simulator <- function(
   graph,
   .name,
   nchunks     = 5,
-  diam        = NA,
-  unconn_dist = NA, # `diam` + 1
+  diam        = NULL,
+  unconn_dist = NULL, # `diam` + 1
   seed_rand   = 1,
   vrb         = 1,
   from_scratch = FALSE,
@@ -52,22 +52,21 @@ simulator <- function(
 
   vertex_attr(g, 'vid_orig') <- V(g)
 
-  if (!is.na(seed_rand)) set.seed(seed_rand)
+  set.seed(seed_rand)
   vdo_rand   <- sample(1:vcount(g))
-  if (!is.na(seed_rand)) set.seed(max(2, seed_rand + 1)) # 0 and 1 are the same
+  set.seed(max(2, seed_rand + 1)) # 0 and 1 are the same
   tiebreaker <- sample(1:vcount(g))
 
   # Calculate diameter if not specified
-  if (is.na(diam)) {
+  if (is.null(diam)) {
     ticf('Diameter not specified.  Manually calculating...')
     diam <- diameter(g)
     toc()
   }
-  if (is.na(unconn_dist)) {
+  if (is.null(unconn_dist)) {
     logf('Using default unconnected distance of (`diameter` + 1).')
     unconn_dist <- diam + 1
   }
-
 
   return(list(
     class       = 'simulator',

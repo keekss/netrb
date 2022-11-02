@@ -1,0 +1,126 @@
+---
+title: "Mean Distance Approximations"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+source('setup.R')
+```
+
+Obtaining all shortest paths in a graph tends to a time complexity of $\Theta(V^3)$, where $V$ is the total number of vertices in the graph.  Sampling vertices may help give this operation a reasonable runtime on large graphs.
+
+Let $s^2$ be the variance of a sample of $n$ shortest paths in a graph.  Then, the variance of the mean distance of this sample is $s^2/n$.  If $m$ such samples are taken, and those mean distances are then averaged, the variance of this sample of samples is simply $\frac{s^2}{mn}$.
+
+The relative error, then, becomes of large interest.
+
+
+```{r}
+g <- sample_fitness_pl(2e3, 4e3, 2.5)
+mean_distance_sample <- function(g, vcount_sample) {
+  return(mean(igraph::distances(g,
+    v  = sample(1:vcount(g), vcount_sample),
+    to = sample(1:vcount(g), vcount_sample)
+  )))
+}
+mean_distance_sample(g, 5)
+```
+
+
+```{r}
+samp_vcs <- seq(1, vcount(g), length.out = 10)
+
+mean_distance_for_gnm_size <- function(n) {
+  g <- sample_gnm(n, round(2*n))
+  return(netrb::mean_distance(g, unconn_dist = diameter(g) + 1))
+}
+tic()
+set.seed(1)
+t <- timed_lapply(samp_vcs, 
+                  function(vc) mean_distance_sample(g, vc),
+                  return_times_only = FALSE,
+                  times_run = 1)
+toc()
+# plot(samp_vcs, t)
+t
+```
+```{r}
+y <- pbmclapply(samp_vcs, function(vc) {
+  mean_distance_sample(g = g, vcount_sample = vc)
+})
+plot(samp_vcs, y)
+```
+
+
+```{r}
+mean(c(3,Inf,1000))
+g <- graphs$ir
+n <- vcount(g)
+rrn <- round(sqrt(sqrt(n)))
+# g <- sample_gnm(n,2*n)
+# TODO make applies use random seeds
+foo <- function(na) {
+  d <- igraph::distances(g,
+               v =  sample(1:n,rrn),
+               to = sample(1:n,rrn))
+  d[d == Inf] <- NA
+  d[d == 0] <- NA
+  return(mean(d, na.rm = TRUE))
+}
+foo2 <- function(na) {
+  md1r <- rep(NA, rrn)
+  md1ap <- unlist(pbmclapply(md1r, foo,
+                         mc.cores = as.integer(detectCores()-1)))
+  return(mean(md1ap))
+}
+mdx <- foo2(NA)
+mdx
+```
+
+
+## Runtime vs. Sampling Fractions
+```{r}
+g <- graphs$pg
+hist(harmonic_centrality(g), breaks = 100)
+hist(harmonic_centrality(g,
+                         normalized = TRUE),
+     breaks = 100)
+```
+
+
+
+```{r}
+xyt <- timed_lapply(samp_vcs, mean_distance_sample, g = g)
+plot_Ys_vs_X(xyt, 'x')
+```
+
+
+```{r}
+foo <- pbmclapply(
+  samp_vcs,
+  function(vc) {
+    res <- timed_func(function() {
+      d <- igraph::distances(
+        graph = g,
+        v = sample(1:vcount(g), vc),
+        to = sample(1:vcount(g), vc)
+      )
+      d[d == Inf] <- NA
+      return(mean(d, na.rm = TRUE))
+    },
+    return_func_result = TRUE
+    )
+    print(res$result)
+    mds[i] <- res$result
+    times[i] <- res$time
+    i <- i + 1
+    return(res)
+  },
+  mc.cores = detectCores()
+)
+toc()
+  # cl = cl
+
+# stopCluster(cl)
+```

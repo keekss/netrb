@@ -20,9 +20,9 @@ match_metric_fun <- function(metric_fun_name) {
           return(metric_fun)
         },
         error = function(condition_2) {
-          logf('Function `%s()` not found in `netrb` or `igraph`.  Attempting to match...',
+          logf('Function name `%s()` not found in `netrb` or `igraph`.  Using function passed into `metric_vs_del()`.',
                metric_fun_name)
-          return(match.fun(metric_fun_name, descend = FALSE))
+          return(NULL)
         }
       )
     }

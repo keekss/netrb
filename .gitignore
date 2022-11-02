@@ -1,7 +1,6 @@
-_archive/*
-test/_archive/*
-test/networks/*
-test/simulators/*
+**/_archive/*
+writeups/networks/*
+writeups/simulators/*
 **.DS_Store
 
 

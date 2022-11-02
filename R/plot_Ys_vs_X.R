@@ -1,3 +1,17 @@
+#' Plot multiple Y columns vs. one X column
+#'
+#' @param df
+#' @param x_col_name
+#' @param x_axis_label
+#' @param y_axis_label
+#' @param title
+#' @param legend_title
+#' @param return_plot
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_Ys_vs_X <- function(
   df,
   x_col_name   = 'del_frac',
@@ -27,7 +41,6 @@ plot_Ys_vs_X <- function(
       df[, x_col_idx],
       reshape2::melt(df[, -x_col_idx])[, -1]
     )
-
     print(df)
     colnames(df) <- c('x', 'y', 'value')
   }
