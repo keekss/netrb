@@ -1,4 +1,5 @@
 **/_archive/*
+**.nb.html
 writeups/networks/*
 writeups/simulators/*
 **.DS_Store
