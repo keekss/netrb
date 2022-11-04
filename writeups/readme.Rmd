@@ -1,5 +1,5 @@
 ---
-title: "`netrb`: Network Robustness Simulation Functions"
+title: "`netrb`: Network Robustness Simulation Functions in R"
 author: "Nicholas \"Kiko\" Whiteley"
 output:
   pdf_document: default
